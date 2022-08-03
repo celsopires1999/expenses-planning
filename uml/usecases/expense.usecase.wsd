@@ -1,0 +1,9 @@
+@startuml
+
+:Analista: -> (Planejar despesa)
+:Analista: -> (Corrigir despesa)
+:Analista: -> (Indicar requisição de compras)
+:Analista: -> (Indicar pedido de compras)
+:Analista: -> (Indicar Nota Fiscal)
+
+@enduml

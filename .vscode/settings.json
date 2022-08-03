@@ -38,5 +38,11 @@
   },
   "[typescript]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "debug.javascript.terminalOptions": {
+    "skipFiles": [
+      "${workspaceFolder}/node_modules/**/*.js",
+      "<node_internals>/**"
+    ]
   }
 }

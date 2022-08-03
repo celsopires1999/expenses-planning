@@ -1,8 +1,8 @@
-version: '3'
+version: "3"
 
 services:
   app:
     build: .
-    container_name: typescript-boilerplate
+    container_name: expenses-planning
     volumes:
       - .:/home/node/app

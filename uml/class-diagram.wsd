@@ -1,0 +1,29 @@
+@startuml
+
+entity Expense
+
+Expense : + id: uuid
+Expense : + name: string 
+Expense : + description: string 
+Expense : + plannedAccountingDate: Date
+Expense : + actualAccountingDate: Date
+Expense : + value: number
+Expense : + type: ExpenseType
+Expense : + supplier: UUID
+Expense : + status: ExpenseStatus
+Expense : + purchaseRequest: UUID
+Expense : + purchaseOrder: UUID
+Expense : + responsiblePerson: UUID
+Expense : + purchaseRequest: UUID
+Expense : + purchaseRequest: UUID
+Expense : + purchaseRequest: UUID
+
+Expense : + plan (expenseProps): void
+Expense : + amend (expenseProps): type
+Expense : + destroy (id): type
+Expense : + registerPR(string): type
+Expense : + registerPO(string): type
+Expense : + registerNF(string): type
+Expense : + method(type): type
+
+@enduml
