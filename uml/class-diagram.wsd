@@ -1,29 +1,54 @@
 @startuml
+class Expense {
+    + name: string 
+    + description: string 
+    + year: Year
+    + amount: Amount
+    + type: ExpenseType
+    + supplier: Supplier
+    + purchaseRequest: PurchaseRequest
+    + purchaseOrder: PurchaseOrder
+    + team: Team
+}
+enum ExpenseType {
+    CAPEX
+    OPEX
+}
+abstract class Payment {
+    + month: Month
+    + amount: Amount
+}
 
-entity Expense
+class PaymentPlanned {
 
-Expense : + id: uuid
-Expense : + name: string 
-Expense : + description: string 
-Expense : + plannedAccountingDate: Date
-Expense : + actualAccountingDate: Date
-Expense : + value: number
-Expense : + type: ExpenseType
-Expense : + supplier: UUID
-Expense : + status: ExpenseStatus
-Expense : + purchaseRequest: UUID
-Expense : + purchaseOrder: UUID
-Expense : + responsiblePerson: UUID
-Expense : + purchaseRequest: UUID
-Expense : + purchaseRequest: UUID
-Expense : + purchaseRequest: UUID
+}
 
-Expense : + plan (expenseProps): void
-Expense : + amend (expenseProps): type
-Expense : + destroy (id): type
-Expense : + registerPR(string): type
-Expense : + registerPO(string): type
-Expense : + registerNF(string): type
-Expense : + method(type): type
+class PaymentActual {
+  + accoutingDate: Date
+  + invoice: Invoice
+}
+
+PaymentPlanned <|-- Payment
+PaymentActual <|-- Payment
+
+Expense *-- PaymentPlanned
+Expense *-- PaymentActual
+
+class TeamMember {
+    + name: TeamMemberName
+}
+
+class Team { 
+    + name: string
+}
+
+class Role { 
+    + name: string
+}
+
+TeamMember "0..*" -- "1..*" Team
+(TeamMember, Team) . Role
+
+
 
 @enduml
