@@ -126,6 +126,18 @@ describe("AuditFields Unit Tests", () => {
           updated_at: ["updated_at must be a Date instance"],
         },
       },
+      {
+        testCase: 4,
+        props: {
+          created_by: "user",
+          created_at,
+          updated_by: "user",
+          updated_at: new Date(created_at.getTime() - 100),
+        },
+        message: {
+          updated_at: ["updated_at is older than created_at"],
+        },
+      },
     ];
 
     test.each(arrange)("$testCase) when props are $props", (i) => {

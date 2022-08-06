@@ -1,3 +1,4 @@
+import { FieldsError } from "@seedwork/domain/validators/validator-fields-interface";
 import { IsDate, IsNotEmpty, IsString, MaxLength } from "class-validator";
 import { AuditFieldsValidationError } from "../../errors/validation.error";
 import { ClassValidatorFields } from "../../validators/class-validator-fields";
@@ -27,6 +28,13 @@ export class AuditFields extends ValueObject<AuditFieldsProps> {
     const isValid = validator.validate(props);
     if (!isValid) {
       throw new AuditFieldsValidationError(validator.errors);
+    }
+
+    if (props.created_at > props.updated_at) {
+      const errors: FieldsError = {
+        ["updated_at"]: ["updated_at is older than created_at"],
+      };
+      throw new AuditFieldsValidationError(errors);
     }
   }
 }
