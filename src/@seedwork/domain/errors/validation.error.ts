@@ -27,3 +27,10 @@ export class SupplierValidationError extends Error {
     this.name = "SupplierValidationError";
   }
 }
+
+export class TeamValidationError extends Error {
+  constructor(public error: FieldsError) {
+    super(`Team is not valid`);
+    this.name = "TeamValidationError";
+  }
+}

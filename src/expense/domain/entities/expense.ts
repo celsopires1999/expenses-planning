@@ -12,11 +12,11 @@ export interface ExpenseProps {
 export class Expense extends Entity<ExpenseProps> {
   constructor(
     public readonly props: ExpenseProps,
-    audit: AuditFieldsProps,
+    auditFields: AuditFieldsProps,
     id?: UniqueEntityId
   ) {
     Expense.validate(props);
-    super(props, audit, id);
+    super(props, auditFields, id);
     this.name = this.props.name;
     this.description = this.props.description;
   }
