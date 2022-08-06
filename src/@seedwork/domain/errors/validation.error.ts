@@ -20,3 +20,10 @@ export class AuditFieldsValidationError extends Error {
     this.name = "AuditFieldsValidationError";
   }
 }
+
+export class SupplierValidationError extends Error {
+  constructor(public error: FieldsError) {
+    super(`Supplier is not valid`);
+    this.name = "SupplierValidationError";
+  }
+}

@@ -1,7 +1,7 @@
-import { FieldsError } from "@seedwork/domain/validators/validator-fields-interface";
 import { IsDate, IsNotEmpty, IsString, MaxLength } from "class-validator";
 import { AuditFieldsValidationError } from "../../errors/validation.error";
 import { ClassValidatorFields } from "../../validators/class-validator-fields";
+import { FieldsError } from "./../../validators/validator-fields-interface";
 import { ValueObject } from "./value-object";
 
 export interface AuditFieldsProps {
