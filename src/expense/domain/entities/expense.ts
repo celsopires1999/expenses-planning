@@ -1,21 +1,24 @@
+import { AuditFieldsProps } from "../../../@seedwork/domain/entity/value-objects/audit-fields.vo";
+import { ExpenseValidatorFactory } from "../validators/expense.validator";
+import { Entity } from "./../../../@seedwork/domain/entity/entity";
+import { UniqueEntityId } from "./../../../@seedwork/domain/entity/value-objects/unique-entity-id.vo";
 import { EntityValidationError } from "./../../../@seedwork/domain/errors/validation.error";
-import ExpenseValidatorFactory from "../validators/expense.validator";
-import Entity from "./../../../@seedwork/domain/entity/entity";
-import UniqueEntityId from "./../../../@seedwork/domain/entity/value-objects/unique-entity-id.vo";
 
 export interface ExpenseProps {
   name: string;
   description: string;
-  created_at?: Date;
 }
 
 export class Expense extends Entity<ExpenseProps> {
-  constructor(public readonly props: ExpenseProps, id?: UniqueEntityId) {
+  constructor(
+    public readonly props: ExpenseProps,
+    audit: AuditFieldsProps,
+    id?: UniqueEntityId
+  ) {
     Expense.validate(props);
-    super(props, id);
+    super(props, audit, id);
     this.name = this.props.name;
     this.description = this.props.description;
-    this.created_at = this.props.created_at;
   }
 
   get name(): string {
@@ -34,15 +37,7 @@ export class Expense extends Entity<ExpenseProps> {
     this.props.description = value;
   }
 
-  get created_at(): Date {
-    return this.props.created_at;
-  }
-
-  private set created_at(value: Date) {
-    this.props.created_at = value ?? new Date();
-  }
-
-  static validate(props: Omit<ExpenseProps, "created_at">) {
+  static validate(props: ExpenseProps) {
     const validator = ExpenseValidatorFactory.create();
     const isValid = validator.validate(props);
     if (!isValid) {

@@ -66,7 +66,7 @@ describe("Expense Integration Tests", () => {
       ];
       test.each(arrange)(`when name prop is "$name"`, (i) => {
         expect(
-          () => new Expense({ name: i.name } as any)
+          () => new Expense({ name: i.name } as any, { created_by: "user" })
         ).containsErrorMessages(i.message);
       });
     });
@@ -89,10 +89,13 @@ describe("Expense Integration Tests", () => {
       test.each(arrange)(`when description prop is "$description"`, (i) => {
         expect(
           () =>
-            new Expense({
-              name: "some name",
-              description: i.description,
-            } as any)
+            new Expense(
+              {
+                name: "some name",
+                description: i.description,
+              } as any,
+              { created_by: "user" }
+            )
         ).containsErrorMessages(i.message);
       });
     });
@@ -104,21 +107,19 @@ describe("Expense Integration Tests", () => {
         {
           name: "some name",
           description: "some description",
-          created_at: new Date(),
         },
       ];
 
       test.each(arrange)("%#) when props are %o ", (i) => {
-        const entity = new Expense({
-          name: i.name,
-          description: i.description,
-          created_at: i.created_at,
-        });
+        const entity = new Expense(
+          {
+            name: i.name,
+            description: i.description,
+          },
+          { created_by: "system" }
+        );
         expect(entity.props).toMatchObject(i);
         expect(entity.description).toBe(i.description);
-        i.created_at === undefined
-          ? expect(entity.created_at).toBeInstanceOf(Date)
-          : expect(entity.created_at).toBe(i.created_at);
       });
     });
   });

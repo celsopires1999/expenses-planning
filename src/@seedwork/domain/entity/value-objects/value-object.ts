@@ -3,7 +3,9 @@ import { deepFreeze } from "./../../utils/object";
 export abstract class ValueObject<Value = any> {
   private _value: Value;
   constructor(value: Value) {
-    this._value = deepFreeze(value);
+    const _value = value;
+
+    this._value = deepFreeze(_value);
   }
 
   get value() {

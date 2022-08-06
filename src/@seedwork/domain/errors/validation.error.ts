@@ -13,3 +13,10 @@ export class EntityValidationError extends Error {
     this.name = "EntityValidationError";
   }
 }
+
+export class AuditFieldsValidationError extends Error {
+  constructor(public error: FieldsError) {
+    super(`AuditFields are not valid`);
+    this.name = "AuditFieldsValidationError";
+  }
+}

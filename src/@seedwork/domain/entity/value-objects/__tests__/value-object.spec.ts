@@ -22,25 +22,25 @@ describe("ValueObject Unit Tests", () => {
       street: "New Street",
       number: 801,
       city: "São Paulo",
-      zip: "03336-000",
+      zip: "93336-000",
     });
 
     expect(vo.value.street).toBe("New Street");
     expect(vo.value.number).toBe(801);
     expect(vo.value.city).toBe("São Paulo");
-    expect(vo.value.zip).toBe("03336-000");
+    expect(vo.value.zip).toBe("93336-000");
     expect(vo.value).toStrictEqual({
       street: "New Street",
       number: 801,
       city: "São Paulo",
-      zip: "03336-000",
+      zip: "93336-000",
     });
 
     vo["_value"] = {
       street: "New Street",
       number: 802,
       city: "São Paulo",
-      zip: "03336-000",
+      zip: "93336-000",
     };
     expect(vo.value.number).toBe(802);
 
