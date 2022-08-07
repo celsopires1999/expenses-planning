@@ -1,11 +1,22 @@
-import { Expense, ExpenseProps } from "./expense";
+import { omit } from "lodash";
 import { validate as uuidValidate } from "uuid";
-import { UniqueEntityId } from "./../../../@seedwork/domain/entity/value-objects/unique-entity-id.vo";
 import { AuditFields } from "../../../@seedwork/domain/entity/value-objects/audit-fields.vo";
+import { ExpenseType } from "../validators/expense.validator";
+import { UniqueEntityId } from "./../../../@seedwork/domain/entity/value-objects/unique-entity-id.vo";
+import { Supplier } from "./../../../supplier/domain/entities/supplier";
+import { Team } from "./../../../team/domain/entities/team";
+import { Expense, ExpenseProps } from "./expense";
 
-const expenseTestProps = {
+const testProps: ExpenseProps = {
   name: "initial name",
   description: "initial description",
+  year: 2022,
+  amount: 150000,
+  type: ExpenseType.OPEX,
+  supplier: new Supplier({ name: "good supplier" }, { created_by: "user" }),
+  purchaseRequest: "1234567890",
+  purchaseOrder: "0987654321",
+  team: new Team({ name: "the best team" }, { created_by: "user" }),
 };
 
 describe("Expense Unit Test", () => {
@@ -14,7 +25,7 @@ describe("Expense Unit Test", () => {
   });
   test("constructor of category with all props", () => {
     let props: ExpenseProps = {
-      ...expenseTestProps,
+      ...testProps,
     };
 
     const auditProps = {
@@ -26,10 +37,17 @@ describe("Expense Unit Test", () => {
 
     let entity = new Expense(props, auditProps);
 
-    expect(Expense.validate).toHaveBeenCalled();
+    expect(Expense.validate).toHaveBeenCalledTimes(1);
     expect(entity.props).toStrictEqual(props);
-    expect(entity.name).toBeTruthy();
+    expect(entity.name).toBe(props.name);
     expect(entity.description).toBe(props.description);
+    expect(entity.year).toBe(props.year);
+    expect(entity.amount).toBe(props.amount);
+    expect(entity.type).toBe(props.type);
+    expect(entity.supplier).toStrictEqual(props.supplier);
+    expect(entity.purchaseRequest).toBe(props.purchaseRequest);
+    expect(entity.purchaseOrder).toBe(props.purchaseOrder);
+    expect(entity.team).toStrictEqual(props.team);
     expect(entity.created_by).toBe(auditProps.created_by);
     expect(entity.created_at).toBe(auditProps.created_at);
     expect(entity.updated_by).toBe(auditProps.updated_by);
@@ -37,37 +55,90 @@ describe("Expense Unit Test", () => {
   });
 
   test("constructor with mandatory props only", () => {
-    const entity = new Expense(expenseTestProps, { created_by: "user" });
+    const props = omit(testProps, [
+      "supplier",
+      "purchaseRequest",
+      "purchaseOrder",
+    ]);
+    const entity = new Expense(props, { created_by: "user" });
 
-    expect(entity.name).toBe(expenseTestProps.name);
-    expect(entity.description).toBe(expenseTestProps.description);
+    expect(entity.name).toBe(testProps.name);
+    expect(entity.description).toBe(testProps.description);
     expect(entity.created_at).toBeInstanceOf(Date);
-    expect(entity.props).toStrictEqual({
-      name: expenseTestProps.name,
-      description: expenseTestProps.description,
-    });
-    expect(entity.props).toMatchObject({
-      name: expenseTestProps.name,
-      description: expenseTestProps.description,
-    });
+    expect(entity.props).toStrictEqual(props);
+    expect(entity.props).toMatchObject(props);
   });
 
   test("getter and setter of name prop", () => {
-    const entity = new Expense(expenseTestProps, { created_by: "user" });
-    expect(entity.name).toBe(expenseTestProps.name);
+    const entity = new Expense(testProps, { created_by: "user" });
+    expect(entity.name).toBe(testProps.name);
     entity["name"] = "changed";
     expect(entity.name).toBe("changed");
   });
 
   test("getter and setter of description prop", () => {
-    const entity = new Expense(expenseTestProps, { created_by: "user" });
-    expect(entity.description).toBe(expenseTestProps.description);
+    const entity = new Expense(testProps, { created_by: "user" });
+    expect(entity.description).toBe(testProps.description);
     entity["description"] = "changed";
     expect(entity.description).toBe("changed");
   });
 
+  test("getter and setter of year prop", () => {
+    const entity = new Expense(testProps, { created_by: "user" });
+    expect(entity.year).toBe(testProps.year);
+    entity["year"] = 2023;
+    expect(entity.year).toBe(2023);
+  });
+
+  test("getter and setter of amount prop", () => {
+    const entity = new Expense(testProps, { created_by: "user" });
+    expect(entity.amount).toBe(testProps.amount);
+    entity["amount"] = 160000.25;
+    expect(entity.amount).toBe(160000.25);
+  });
+
+  test("getter and setter of type prop", () => {
+    const entity = new Expense(testProps, { created_by: "user" });
+    expect(entity.type).toBe(testProps.type);
+    entity["type"] = ExpenseType.CAPEX;
+    expect(entity.type).toBe(ExpenseType.CAPEX);
+  });
+
+  test("getter and setter of supplier prop", () => {
+    const supplier = new Supplier(
+      { name: "better supplier" },
+      { created_by: "system" }
+    );
+    const entity = new Expense(testProps, { created_by: "user" });
+    expect(entity.supplier).toBe(testProps.supplier);
+    entity["supplier"] = supplier;
+    expect(entity.supplier).toStrictEqual(supplier);
+  });
+
+  test("getter and setter of purchaseRequest prop", () => {
+    const entity = new Expense(testProps, { created_by: "user" });
+    expect(entity.purchaseRequest).toBe(testProps.purchaseRequest);
+    entity["purchaseRequest"] = "9876543210";
+    expect(entity.purchaseRequest).toBe("9876543210");
+  });
+
+  test("getter and setter of purchaseOrder prop", () => {
+    const entity = new Expense(testProps, { created_by: "user" });
+    expect(entity.purchaseOrder).toBe(testProps.purchaseOrder);
+    entity["purchaseOrder"] = "0123456789";
+    expect(entity.purchaseOrder).toBe("0123456789");
+  });
+
+  test("getter and setter of team prop", () => {
+    const team = new Team({ name: "better team" }, { created_by: "system" });
+    const entity = new Expense(testProps, { created_by: "user" });
+    expect(entity.team).toBe(testProps.team);
+    entity["team"] = team;
+    expect(entity.team).toStrictEqual(team);
+  });
+
   test("getter and setter of auditFields prop", () => {
-    const entity = new Expense(expenseTestProps, { created_by: "user" });
+    const entity = new Expense(testProps, { created_by: "user" });
     expect(entity.created_at).toBeInstanceOf(Date);
     const now = new Date();
     const auditFields = new AuditFields({
@@ -79,17 +150,17 @@ describe("Expense Unit Test", () => {
   });
 
   test("getter of created_by prop", () => {
-    const entity = new Expense(expenseTestProps, { created_by: "system" });
+    const entity = new Expense(testProps, { created_by: "system" });
     expect(entity.created_by).toBe("system");
   });
 
   test("getter of created_at prop", () => {
-    const entity = new Expense(expenseTestProps, { created_by: "user" });
+    const entity = new Expense(testProps, { created_by: "user" });
     expect(entity.created_at).toBeInstanceOf(Date);
   });
 
   test("getter of updated_by prop", () => {
-    const entity = new Expense(expenseTestProps, {
+    const entity = new Expense(testProps, {
       created_by: "user",
       updated_by: "system",
     });
@@ -97,7 +168,7 @@ describe("Expense Unit Test", () => {
   });
 
   test("getter of updated_at prop", () => {
-    const entity = new Expense(expenseTestProps, { created_by: "user" });
+    const entity = new Expense(testProps, { created_by: "user" });
     expect(entity.updated_at).toBeInstanceOf(Date);
   });
 
@@ -110,11 +181,7 @@ describe("Expense Unit Test", () => {
     ];
 
     test.each(arrange)("%#) when props are %j", (item) => {
-      const entity = new Expense(
-        expenseTestProps,
-        { created_by: "user" },
-        item.id
-      );
+      const entity = new Expense(testProps, { created_by: "user" }, item.id);
       expect(entity.id).not.toBeNull();
       expect(uuidValidate(entity.id)).toBeTruthy();
     });

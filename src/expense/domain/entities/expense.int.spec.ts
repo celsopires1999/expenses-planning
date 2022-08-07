@@ -1,3 +1,6 @@
+import { ExpenseType } from "../validators/expense.validator";
+import { Supplier } from "./../../../supplier/domain/entities/supplier";
+import { Team } from "./../../../team/domain/entities/team";
 import { Expense, ExpenseProps } from "./expense";
 
 describe("Expense Integration Tests", () => {
@@ -101,25 +104,61 @@ describe("Expense Integration Tests", () => {
     });
   });
   describe("successfull operations", () => {
-    describe("should create a category", () => {
+    describe("should create an entity", () => {
       const arrange: ExpenseProps[] = [
-        { name: "some name", description: "some description" },
         {
           name: "some name",
           description: "some description",
+          year: 2022,
+          amount: 2000.55,
+          type: ExpenseType.CAPEX,
+          team: new Team({ name: "super team" }, { created_by: "user" }),
+        },
+        {
+          name: "some name",
+          description: "some description",
+          year: 2022,
+          amount: 2000.55,
+          type: ExpenseType.CAPEX,
+          supplier: new Supplier(
+            { name: "super supplier" },
+            { created_by: "user" }
+          ),
+          team: new Team({ name: "super team" }, { created_by: "user" }),
+        },
+        {
+          name: "some name",
+          description: "some description",
+          year: 2022,
+          amount: 2000.55,
+          type: ExpenseType.CAPEX,
+          supplier: new Supplier(
+            { name: "super supplier" },
+            { created_by: "user" }
+          ),
+          purchaseRequest: "1234567890",
+          team: new Team({ name: "super team" }, { created_by: "user" }),
+        },
+        {
+          name: "some name",
+          description: "some description",
+          year: 2022,
+          amount: 2000.55,
+          type: ExpenseType.CAPEX,
+          supplier: new Supplier(
+            { name: "super supplier" },
+            { created_by: "user" }
+          ),
+          purchaseRequest: "1234567890",
+          purchaseOrder: "9876543210",
+          team: new Team({ name: "super team" }, { created_by: "user" }),
         },
       ];
 
-      test.each(arrange)("%#) when props are %o ", (i) => {
-        const entity = new Expense(
-          {
-            name: i.name,
-            description: i.description,
-          },
-          { created_by: "system" }
-        );
-        expect(entity.props).toMatchObject(i);
-        expect(entity.description).toBe(i.description);
+      test.each(arrange)(" Test Case #%# - create Expense", (props) => {
+        const entity = new Expense(props, { created_by: "system" });
+        expect(entity.props).toMatchObject(props);
+        expect(entity.id).toBeDefined();
       });
     });
   });

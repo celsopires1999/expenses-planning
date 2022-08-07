@@ -1,12 +1,24 @@
 import { AuditFieldsProps } from "../../../@seedwork/domain/entity/value-objects/audit-fields.vo";
-import { ExpenseValidatorFactory } from "../validators/expense.validator";
+import {
+  ExpenseType,
+  ExpenseValidatorFactory,
+} from "../validators/expense.validator";
 import { Entity } from "./../../../@seedwork/domain/entity/entity";
 import { UniqueEntityId } from "./../../../@seedwork/domain/entity/value-objects/unique-entity-id.vo";
 import { EntityValidationError } from "./../../../@seedwork/domain/errors/validation.error";
+import { Supplier } from "./../../../supplier/domain/entities/supplier";
+import { Team } from "./../../../team/domain/entities/team";
 
 export interface ExpenseProps {
   name: string;
   description: string;
+  year: number;
+  amount: number;
+  type: ExpenseType;
+  supplier?: Supplier;
+  purchaseRequest?: string;
+  purchaseOrder?: string;
+  team: Team;
 }
 
 export class Expense extends Entity<ExpenseProps> {
@@ -19,6 +31,13 @@ export class Expense extends Entity<ExpenseProps> {
     super(props, auditFields, id);
     this.name = this.props.name;
     this.description = this.props.description;
+    this.year = this.props.year;
+    this.amount = this.props.amount;
+    this.type = this.props.type;
+    this.supplier = this.props.supplier;
+    this.purchaseRequest = this.props.purchaseRequest;
+    this.purchaseOrder = this.props.purchaseOrder;
+    this.team = this.props.team;
   }
 
   get name(): string {
@@ -35,6 +54,62 @@ export class Expense extends Entity<ExpenseProps> {
 
   private set description(value: string) {
     this.props.description = value;
+  }
+
+  get year(): number {
+    return this.props.year;
+  }
+
+  private set year(value: number) {
+    this.props.year = value;
+  }
+
+  get amount(): number {
+    return this.props.amount;
+  }
+
+  private set amount(value: number) {
+    this.props.amount = value;
+  }
+
+  get type(): ExpenseType {
+    return this.props.type;
+  }
+
+  private set type(value: ExpenseType) {
+    this.props.type = value;
+  }
+
+  get supplier(): Supplier {
+    return this.props.supplier;
+  }
+
+  private set supplier(value: Supplier) {
+    this.props.supplier = value;
+  }
+
+  get purchaseRequest(): string {
+    return this.props.purchaseRequest;
+  }
+
+  private set purchaseRequest(value: string) {
+    this.props.purchaseRequest = value;
+  }
+
+  get purchaseOrder(): string {
+    return this.props.purchaseOrder;
+  }
+
+  private set purchaseOrder(value: string) {
+    this.props.purchaseOrder = value;
+  }
+
+  get team(): Team {
+    return this.props.team;
+  }
+
+  private set team(value: Team) {
+    this.props.team = value;
   }
 
   static validate(props: ExpenseProps) {
