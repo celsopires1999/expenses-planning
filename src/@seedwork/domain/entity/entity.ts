@@ -42,6 +42,14 @@ export abstract class Entity<Props = any> {
     return this._auditFields.value.updated_at;
   }
 
+  updateAuditFields(updated_by: string): void {
+    this.auditFields = new AuditFields({
+      ...this.auditFields.value,
+      updated_by: updated_by,
+      updated_at: new Date(),
+    });
+  }
+
   toJSON(): Required<{ id: string; auditFields: string } & Props> {
     return {
       id: this.id,

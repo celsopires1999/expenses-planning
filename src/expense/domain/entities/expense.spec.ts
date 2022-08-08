@@ -1,3 +1,4 @@
+import Entity from "@seedwork/domain/entity/entity";
 import { omit } from "lodash";
 import { validate as uuidValidate } from "uuid";
 import { AuditFields } from "../../../@seedwork/domain/entity/value-objects/audit-fields.vo";
@@ -184,6 +185,60 @@ describe("Expense Unit Test", () => {
       const entity = new Expense(testProps, { created_by: "user" }, item.id);
       expect(entity.id).not.toBeNull();
       expect(uuidValidate(entity.id)).toBeTruthy();
+    });
+  });
+
+  describe("change method", () => {
+    it("should change an entity", () => {
+      const props: ExpenseProps = {
+        name: "some name",
+        description: "some description",
+        year: 2022,
+        amount: 2500.55,
+        type: ExpenseType.CAPEX,
+        team: new Team({ name: "super team" }, { created_by: "user1" }),
+      };
+      const entity = new Expense(props, { created_by: "user1" });
+      expect(entity.toJSON()).toMatchObject(props);
+      expect(Expense.validate).toHaveBeenCalledTimes(1);
+      expect(entity.updated_at).toEqual(entity.created_at);
+
+      entity.change({ name: "new name" }, "user2");
+      expect(Expense.validate).toHaveBeenCalledTimes(2);
+      expect(entity.name).toBe("new name");
+      expect(entity.updated_by).toBe("user2");
+      expect(entity.updated_at).not.toEqual(entity.created_at);
+
+      entity.change({ description: "new description" }, "user3");
+      expect(Expense.validate).toHaveBeenCalledTimes(3);
+      expect(entity.description).toBe("new description");
+      expect(entity.updated_by).toBe("user3");
+
+      entity.change({ year: 2023 }, "user4");
+      expect(Expense.validate).toHaveBeenCalledTimes(4);
+      expect(entity.year).toBe(2023);
+      expect(entity.updated_by).toBe("user4");
+
+      entity.change({ year: 2023 }, "user5");
+      expect(Expense.validate).toHaveBeenCalledTimes(5);
+      expect(entity.year).toBe(2023);
+      expect(entity.updated_by).toBe("user5");
+
+      entity.change({ amount: 600.66 }, "user6");
+      expect(Expense.validate).toHaveBeenCalledTimes(6);
+      expect(entity.amount).toBe(600.66);
+      expect(entity.updated_by).toBe("user6");
+
+      entity.change({ type: ExpenseType.OPEX }, "user7");
+      expect(Expense.validate).toHaveBeenCalledTimes(7);
+      expect(entity.type).toBe(ExpenseType.OPEX);
+      expect(entity.updated_by).toBe("user7");
+
+      const team = new Team({ name: "new team" }, { created_by: "user" });
+      entity.change({ team: team }, "user8");
+      expect(Expense.validate).toHaveBeenCalledTimes(8);
+      expect(entity.team).toBe(team);
+      expect(entity.updated_by).toBe("user8");
     });
   });
 });

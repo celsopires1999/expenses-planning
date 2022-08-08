@@ -112,6 +112,38 @@ export class Expense extends Entity<ExpenseProps> {
     this.props.team = value;
   }
 
+  change(
+    props: {
+      name?: string;
+      description?: string;
+      year?: number;
+      amount?: number;
+      type?: ExpenseType;
+      team?: Team;
+    },
+    updated_by: string
+  ): void {
+    const _props = { ...this.props };
+
+    _props.name = props.name ?? this.name;
+    _props.description = props.description ?? this.description;
+    _props.year = props.year ?? this.year;
+    _props.amount = props.amount ?? this.amount;
+    _props.type = props.type ?? this.type;
+    _props.team = props.team ?? this.team;
+
+    Expense.validate(_props);
+
+    this.name = _props.name;
+    this.description = _props.description;
+    this.year = _props.year;
+    this.amount = _props.amount;
+    this.type = _props.type;
+    this.team = _props.team;
+
+    super.updateAuditFields(updated_by);
+  }
+
   static validate(props: ExpenseProps) {
     const validator = ExpenseValidatorFactory.create();
     const isValid = validator.validate(props);

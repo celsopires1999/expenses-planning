@@ -1,14 +1,26 @@
-@startuml
+@startuml Expense
 class Expense {
     + name: string 
     + description: string 
-    + year: Year
-    + amount: Amount
+    + year: number
+    + amount: number
     + type: ExpenseType
     + supplier: Supplier
-    + purchaseRequest: PurchaseRequest
-    + purchaseOrder: PurchaseOrder
+    + purchaseRequest: string
+    + purchaseOrder: string
     + team: Team
+    + change()
+    + destroy()
+    + addSupplier()
+    + changeSupplier()
+    + removeSupplier()
+    + addPurchaseRequisition()
+    + changePurchaseRequisition()
+    + removePurchaseRequisition()
+    + addPurchaseOrder()
+    + changePurchaseOrder()
+    + removePurchaseOrder()
+
 }
 enum ExpenseType {
     CAPEX
@@ -25,7 +37,7 @@ class PaymentPlanned {
 
 class PaymentActual {
   + accoutingDate: Date
-  + invoice: Invoice
+  + invoice: string
 }
 
 PaymentPlanned <|-- Payment
