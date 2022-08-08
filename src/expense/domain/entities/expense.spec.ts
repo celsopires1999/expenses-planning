@@ -1,23 +1,61 @@
-import Entity from "@seedwork/domain/entity/entity";
+import Entity from "./../../../@seedwork/domain/entity/entity";
 import { omit } from "lodash";
 import { validate as uuidValidate } from "uuid";
-import { AuditFields } from "../../../@seedwork/domain/entity/value-objects/audit-fields.vo";
+import {
+  AuditFields,
+  AuditFieldsProps,
+} from "../../../@seedwork/domain/entity/value-objects/audit-fields.vo";
 import { ExpenseType } from "../validators/expense.validator";
 import { UniqueEntityId } from "./../../../@seedwork/domain/entity/value-objects/unique-entity-id.vo";
 import { Supplier } from "./../../../supplier/domain/entities/supplier";
 import { Team } from "./../../../team/domain/entities/team";
 import { Expense, ExpenseProps } from "./expense";
 
+interface StubSupplierProps {
+  name: string;
+}
+interface StubTeamProps {
+  name: string;
+}
+class StubSupplier extends Entity<StubSupplierProps> {
+  constructor(
+    public props: StubSupplierProps,
+    auditFields: AuditFieldsProps,
+    id?: UniqueEntityId
+  ) {
+    super(props, auditFields, id);
+  }
+
+  get name(): string {
+    return this.props.name;
+  }
+}
+
+class StubTeam extends Entity<StubTeamProps> {
+  constructor(
+    public props: StubTeamProps,
+    auditFields: AuditFieldsProps,
+    id?: UniqueEntityId
+  ) {
+    super(props, auditFields, id);
+  }
+
+  get name(): string {
+    return this.props.name;
+  }
+}
 const testProps: ExpenseProps = {
   name: "initial name",
   description: "initial description",
   year: 2022,
   amount: 150000,
   type: ExpenseType.OPEX,
-  supplier: new Supplier({ name: "good supplier" }, { created_by: "user" }),
+  // supplier: new Supplier({ name: "good supplier" }, { created_by: "user" }),
+  supplier: new StubSupplier({ name: "good supplier" }, { created_by: "user" }),
   purchaseRequest: "1234567890",
   purchaseOrder: "0987654321",
-  team: new Team({ name: "the best team" }, { created_by: "user" }),
+  // team: new Team({ name: "the best team" }, { created_by: "user" }),
+  team: new StubTeam({ name: "the best team" }, { created_by: "user" }),
 };
 
 describe("Expense Unit Test", () => {
@@ -106,7 +144,8 @@ describe("Expense Unit Test", () => {
   });
 
   test("getter and setter of supplier prop", () => {
-    const supplier = new Supplier(
+    // const supplier = new Supplier(
+    const supplier = new StubSupplier(
       { name: "better supplier" },
       { created_by: "system" }
     );
@@ -131,7 +170,11 @@ describe("Expense Unit Test", () => {
   });
 
   test("getter and setter of team prop", () => {
-    const team = new Team({ name: "better team" }, { created_by: "system" });
+    // const team = new Team({ name: "better team" }, { created_by: "system" });
+    const team = new StubTeam(
+      { name: "better team" },
+      { created_by: "system" }
+    );
     const entity = new Expense(testProps, { created_by: "user" });
     expect(entity.team).toBe(testProps.team);
     entity["team"] = team;
@@ -196,7 +239,7 @@ describe("Expense Unit Test", () => {
         year: 2022,
         amount: 2500.55,
         type: ExpenseType.CAPEX,
-        team: new Team({ name: "super team" }, { created_by: "user1" }),
+        team: new StubTeam({ name: "super team" }, { created_by: "user1" }),
       };
       const entity = new Expense(props, { created_by: "user1" });
       expect(entity.toJSON()).toMatchObject(props);
@@ -234,7 +277,7 @@ describe("Expense Unit Test", () => {
       expect(entity.type).toBe(ExpenseType.OPEX);
       expect(entity.updated_by).toBe("user7");
 
-      const team = new Team({ name: "new team" }, { created_by: "user" });
+      const team = new StubTeam({ name: "new team" }, { created_by: "user" });
       entity.change({ team: team }, "user8");
       expect(Expense.validate).toHaveBeenCalledTimes(8);
       expect(entity.team).toBe(team);
