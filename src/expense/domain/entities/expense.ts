@@ -1,4 +1,5 @@
 import { AuditFieldsProps } from "../../../@seedwork/domain/entity/value-objects/audit-fields.vo";
+import { InvalidExpenseError } from "../errors/expense.error";
 import {
   ExpenseType,
   ExpenseValidatorFactory,
@@ -38,6 +39,129 @@ export class Expense extends Entity<ExpenseProps> {
     this.purchaseRequest = this.props.purchaseRequest;
     this.purchaseOrder = this.props.purchaseOrder;
     this.team = this.props.team;
+  }
+
+  change(
+    props: {
+      name?: string;
+      description?: string;
+      year?: number;
+      amount?: number;
+      type?: ExpenseType;
+      team?: Team;
+    },
+    updated_by: string
+  ): void {
+    const _props = { ...this.props };
+
+    _props.name = props.name ?? this.name;
+    _props.description = props.description ?? this.description;
+    _props.year = props.year ?? this.year;
+    _props.amount = props.amount ?? this.amount;
+    _props.type = props.type ?? this.type;
+    _props.team = props.team ?? this.team;
+
+    Expense.validate(_props);
+
+    this.name = _props.name;
+    this.description = _props.description;
+    this.year = _props.year;
+    this.amount = _props.amount;
+    this.type = _props.type;
+    this.team = _props.team;
+
+    super.updateAuditFields(updated_by);
+  }
+
+  addSupplier(supplier: Supplier, updated_by: string): void {
+    if (!supplier) {
+      throw new InvalidExpenseError(`Supplier must be provided`);
+    }
+    this.handleSupplier(supplier, updated_by);
+  }
+
+  updateSupplier(supplier: Supplier, updated_by: string): void {
+    this.handleSupplier(supplier, updated_by);
+  }
+
+  private handleSupplier(supplier: Supplier, updated_by: string): void {
+    const _props = { ...this.props };
+    _props.supplier = supplier;
+    Expense.validate(_props);
+    this.supplier = _props.supplier;
+    super.updateAuditFields(updated_by);
+  }
+
+  addPurchaseRequest(purchaseRequest: string, updated_by: string): void {
+    if (!purchaseRequest) {
+      throw new InvalidExpenseError(`Purchase Request must be provided`);
+    }
+    if (this.purchaseRequest) {
+      throw new InvalidExpenseError(`Expense has Purchase Request already`);
+    }
+    this.handlePurchaseRequest(purchaseRequest, updated_by);
+  }
+
+  updatePurchaseRequest(purchaseRequest: string, updated_by: string): void {
+    this.handlePurchaseRequest(purchaseRequest, updated_by);
+  }
+
+  private handlePurchaseRequest(
+    purchaseRequest: string,
+    updated_by: string
+  ): void {
+    const _props = { ...this.props };
+    _props.purchaseRequest = purchaseRequest;
+    Expense.validate(_props);
+    this.purchaseRequest = _props.purchaseRequest;
+    super.updateAuditFields(updated_by);
+  }
+
+  addPurchaseOrder(purchaseOrder: string, updated_by: string): void {
+    if (!purchaseOrder) {
+      throw new InvalidExpenseError(`Purchase Order must be provided`);
+    }
+    if (this.purchaseOrder) {
+      throw new InvalidExpenseError(`Expense has Purchase Order already`);
+    }
+    this.handlePurchaseOrder(purchaseOrder, updated_by);
+  }
+
+  updatePurchaseOrder(purchaseOrder: string, updated_by: string): void {
+    this.handlePurchaseOrder(purchaseOrder, updated_by);
+  }
+
+  private handlePurchaseOrder(purchaseOrder: string, updated_by: string) {
+    const _props = { ...this.props };
+    _props.purchaseOrder = purchaseOrder;
+    Expense.validate(_props);
+    this.purchaseOrder = _props.purchaseOrder;
+    super.updateAuditFields(updated_by);
+  }
+
+  addPurchaseDocs(
+    purchaseRequest: string,
+    purchaseOrder: string,
+    updated_by: string
+  ): void {
+    if (!purchaseRequest || !purchaseOrder) {
+      throw new InvalidExpenseError(
+        `Purchase Request and Purchase Order must be provided`
+      );
+    }
+    if (this.purchaseRequest) {
+      throw new InvalidExpenseError(`Expense has Purchase Request already`);
+    }
+    if (this.purchaseOrder) {
+      throw new InvalidExpenseError(`Expense has Purchase Order already`);
+    }
+    const _props = { ...this.props };
+    _props.purchaseRequest = purchaseRequest;
+    _props.purchaseOrder = purchaseOrder;
+    Expense.validate(_props);
+    this.purchaseRequest = _props.purchaseRequest;
+    this.purchaseOrder = _props.purchaseOrder;
+    super.updateAuditFields(updated_by);
   }
 
   get name(): string {
@@ -85,7 +209,7 @@ export class Expense extends Entity<ExpenseProps> {
   }
 
   private set supplier(value: Supplier) {
-    this.props.supplier = value;
+    this.props.supplier = value ?? null;
   }
 
   get purchaseRequest(): string {
@@ -93,7 +217,7 @@ export class Expense extends Entity<ExpenseProps> {
   }
 
   private set purchaseRequest(value: string) {
-    this.props.purchaseRequest = value;
+    this.props.purchaseRequest = value ?? null;
   }
 
   get purchaseOrder(): string {
@@ -101,7 +225,7 @@ export class Expense extends Entity<ExpenseProps> {
   }
 
   private set purchaseOrder(value: string) {
-    this.props.purchaseOrder = value;
+    this.props.purchaseOrder = value ?? null;
   }
 
   get team(): Team {
@@ -110,38 +234,6 @@ export class Expense extends Entity<ExpenseProps> {
 
   private set team(value: Team) {
     this.props.team = value;
-  }
-
-  change(
-    props: {
-      name?: string;
-      description?: string;
-      year?: number;
-      amount?: number;
-      type?: ExpenseType;
-      team?: Team;
-    },
-    updated_by: string
-  ): void {
-    const _props = { ...this.props };
-
-    _props.name = props.name ?? this.name;
-    _props.description = props.description ?? this.description;
-    _props.year = props.year ?? this.year;
-    _props.amount = props.amount ?? this.amount;
-    _props.type = props.type ?? this.type;
-    _props.team = props.team ?? this.team;
-
-    Expense.validate(_props);
-
-    this.name = _props.name;
-    this.description = _props.description;
-    this.year = _props.year;
-    this.amount = _props.amount;
-    this.type = _props.type;
-    this.team = _props.team;
-
-    super.updateAuditFields(updated_by);
   }
 
   static validate(props: ExpenseProps) {

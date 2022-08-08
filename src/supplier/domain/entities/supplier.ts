@@ -2,7 +2,7 @@ import { AuditFieldsProps } from "../../../@seedwork/domain/entity/value-objects
 import { SupplierValidatorFactory } from "../validators/supplier.validator";
 import { Entity } from "../../../@seedwork/domain/entity/entity";
 import { UniqueEntityId } from "../../../@seedwork/domain/entity/value-objects/unique-entity-id.vo";
-import { SupplierValidationError } from "../../../@seedwork/domain/errors/validation.error";
+import { EntityValidationError } from "../../../@seedwork/domain/errors/validation.error";
 
 export interface SupplierProps {
   name: string;
@@ -31,7 +31,7 @@ export class Supplier extends Entity<SupplierProps> {
     const validator = SupplierValidatorFactory.create();
     const isValid = validator.validate(props);
     if (!isValid) {
-      throw new SupplierValidationError(validator.errors);
+      throw new EntityValidationError(validator.errors);
     }
   }
 }

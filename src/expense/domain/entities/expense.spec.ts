@@ -10,6 +10,7 @@ import { UniqueEntityId } from "./../../../@seedwork/domain/entity/value-objects
 import { Supplier } from "./../../../supplier/domain/entities/supplier";
 import { Team } from "./../../../team/domain/entities/team";
 import { Expense, ExpenseProps } from "./expense";
+import { InvalidExpenseError } from "../errors/expense.error";
 
 interface StubSupplierProps {
   name: string;
@@ -283,5 +284,218 @@ describe("Expense Unit Test", () => {
       expect(entity.team).toBe(team);
       expect(entity.updated_by).toBe("user8");
     });
+  });
+
+  test("addSupplier method", () => {
+    const props: ExpenseProps = {
+      name: "some name",
+      description: "some description",
+      year: 2022,
+      amount: 2500.55,
+      type: ExpenseType.CAPEX,
+      team: new StubTeam({ name: "super team" }, { created_by: "user" }),
+    };
+    const entity = new Expense(props, { created_by: "user" });
+    expect(Expense.validate).toHaveBeenCalledTimes(1);
+
+    const supplier = new StubSupplier(
+      { name: "good supplier" },
+      { created_by: "user" }
+    );
+
+    entity.addSupplier(supplier, "user1");
+
+    expect(Expense.validate).toHaveBeenCalledTimes(2);
+    expect(entity.supplier).toStrictEqual(supplier);
+    expect(entity.updated_by).toBe("user1");
+
+    expect(() => entity.addSupplier(null, "user2")).toThrowError(
+      new InvalidExpenseError(`Supplier must be provided`)
+    );
+  });
+
+  test("updateSupplier method", () => {
+    const props: ExpenseProps = {
+      name: "some name",
+      description: "some description",
+      year: 2022,
+      amount: 2500.55,
+      type: ExpenseType.CAPEX,
+      supplier: new StubSupplier(
+        { name: "good supplier" },
+        { created_by: "user" }
+      ),
+      team: new StubTeam({ name: "super team" }, { created_by: "user" }),
+    };
+    const entity = new Expense(props, { created_by: "user" });
+    expect(Expense.validate).toHaveBeenCalledTimes(1);
+    expect(entity.supplier.name).toBe("good supplier");
+
+    const supplier = new StubSupplier(
+      { name: "very good supplier" },
+      { created_by: "user" }
+    );
+
+    entity.updateSupplier(supplier, "user1");
+
+    expect(Expense.validate).toHaveBeenCalledTimes(2);
+    expect(entity.supplier).toStrictEqual(supplier);
+    expect(entity.updated_by).toBe("user1");
+
+    entity.updateSupplier(undefined, "user2");
+
+    expect(entity.supplier).toBeNull();
+  });
+
+  test("addPurchaseRequest method", () => {
+    const props: ExpenseProps = {
+      name: "some name",
+      description: "some description",
+      year: 2022,
+      amount: 2500.55,
+      type: ExpenseType.CAPEX,
+      supplier: new StubSupplier(
+        { name: "good supplier" },
+        { created_by: "user" }
+      ),
+      team: new StubTeam({ name: "super team" }, { created_by: "user" }),
+    };
+    const entity = new Expense(props, { created_by: "user" });
+    entity.addPurchaseRequest("1234567890", "user1");
+
+    expect(entity.purchaseRequest).toBe("1234567890");
+
+    expect(() => entity.addPurchaseRequest("1234567890", "user2")).toThrowError(
+      `Expense has Purchase Request already`
+    );
+
+    expect(() => entity.addPurchaseRequest(undefined, "user2")).toThrowError(
+      `Purchase Request must be provided`
+    );
+  });
+
+  test("updatePurchaseRequest method", () => {
+    const props: ExpenseProps = {
+      name: "some name",
+      description: "some description",
+      year: 2022,
+      amount: 2500.55,
+      type: ExpenseType.CAPEX,
+      supplier: new StubSupplier(
+        { name: "good supplier" },
+        { created_by: "user" }
+      ),
+      purchaseRequest: "1234567890",
+      team: new StubTeam({ name: "super team" }, { created_by: "user" }),
+    };
+    const entity = new Expense(props, { created_by: "user" });
+    entity.updatePurchaseRequest("0987654321", "user1");
+
+    expect(entity.purchaseRequest).toBe("0987654321");
+
+    expect(() => entity.addPurchaseRequest(undefined, "user2")).toThrowError(
+      `Purchase Request must be provided`
+    );
+  });
+
+  test("addPurchaseOrder method", () => {
+    const props: ExpenseProps = {
+      name: "some name",
+      description: "some description",
+      year: 2022,
+      amount: 2500.55,
+      type: ExpenseType.CAPEX,
+      supplier: new StubSupplier(
+        { name: "good supplier" },
+        { created_by: "user" }
+      ),
+      team: new StubTeam({ name: "super team" }, { created_by: "user" }),
+    };
+    const entity = new Expense(props, { created_by: "user" });
+    entity.addPurchaseOrder("1234567890", "user1");
+
+    expect(entity.purchaseOrder).toBe("1234567890");
+
+    expect(() => entity.addPurchaseOrder("1234567890", "user2")).toThrowError(
+      `Expense has Purchase Order already`
+    );
+
+    expect(() => entity.addPurchaseOrder(undefined, "user2")).toThrowError(
+      `Purchase Order must be provided`
+    );
+  });
+
+  test("updatePurchaseOrder method", () => {
+    const props: ExpenseProps = {
+      name: "some name",
+      description: "some description",
+      year: 2022,
+      amount: 2500.55,
+      type: ExpenseType.CAPEX,
+      supplier: new StubSupplier(
+        { name: "good supplier" },
+        { created_by: "user" }
+      ),
+      purchaseOrder: "1234567890",
+      team: new StubTeam({ name: "super team" }, { created_by: "user" }),
+    };
+    const entity = new Expense(props, { created_by: "user" });
+    entity.updatePurchaseOrder("0987654321", "user1");
+
+    expect(entity.purchaseOrder).toBe("0987654321");
+
+    expect(() => entity.addPurchaseOrder(undefined, "user2")).toThrowError(
+      `Purchase Order must be provided`
+    );
+  });
+
+  test("addPurchaseDocs method", () => {
+    const props: ExpenseProps = {
+      name: "some name",
+      description: "some description",
+      year: 2022,
+      amount: 2500.55,
+      type: ExpenseType.CAPEX,
+      supplier: new StubSupplier(
+        { name: "good supplier" },
+        { created_by: "user" }
+      ),
+      team: new StubTeam({ name: "super team" }, { created_by: "user" }),
+    };
+    const entity = new Expense(props, { created_by: "user" });
+    entity.addPurchaseDocs("1234567890", "0987654321", "user1");
+
+    expect(entity.purchaseRequest).toBe("1234567890");
+    expect(entity.purchaseOrder).toBe("0987654321");
+
+    expect(() =>
+      entity.addPurchaseDocs(undefined, undefined, "user1")
+    ).toThrowError(
+      new InvalidExpenseError(
+        `Purchase Request and Purchase Order must be provided`
+      )
+    );
+
+    expect(() =>
+      entity.addPurchaseDocs("1234567890", undefined, "user1")
+    ).toThrowError(
+      new InvalidExpenseError(
+        `Purchase Request and Purchase Order must be provided`
+      )
+    );
+
+    expect(() =>
+      entity.addPurchaseDocs("1234567890", "0987654321", "user1")
+    ).toThrowError(
+      new InvalidExpenseError(`Expense has Purchase Request already`)
+    );
+
+    entity["purchaseRequest"] = null;
+
+    expect(() =>
+      entity.addPurchaseDocs("1234567890", "0987654321", "user1")
+    ).toThrowError(
+      new InvalidExpenseError(`Expense has Purchase Order already`)
+    );
   });
 });

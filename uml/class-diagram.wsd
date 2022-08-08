@@ -10,17 +10,12 @@ class Expense {
     + purchaseOrder: string
     + team: Team
     + change()
-    + destroy()
     + addSupplier()
     + changeSupplier()
-    + removeSupplier()
     + addPurchaseRequisition()
     + changePurchaseRequisition()
-    + removePurchaseRequisition()
     + addPurchaseOrder()
     + changePurchaseOrder()
-    + removePurchaseOrder()
-
 }
 enum ExpenseType {
     CAPEX
