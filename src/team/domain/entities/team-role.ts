@@ -3,9 +3,13 @@ import { AuditFieldsProps } from "../../../@seedwork/domain/entity/value-objects
 import { UniqueEntityId } from "../../../@seedwork/domain/entity/value-objects/unique-entity-id.vo";
 import { EntityValidationError } from "../../../@seedwork/domain/errors/validation.error";
 import { TeamValidatorFactory } from "../validators/team.validator";
+import { Team } from "./team";
+import { TeamMember } from "./team-member";
 
 export interface TeamRoleProps {
   name: string;
+  team: Team;
+  teamMember: TeamMember;
 }
 
 export class TeamRole extends Entity<TeamRoleProps> {
@@ -27,6 +31,21 @@ export class TeamRole extends Entity<TeamRoleProps> {
     this.props.name = value;
   }
 
+  get team(): Team {
+    return this.props.team;
+  }
+
+  private set team(value: Team) {
+    this.props.team = value;
+  }
+
+  get teamMember(): TeamMember {
+    return this.props.teamMember;
+  }
+
+  private set teamMember(value: TeamMember) {
+    this.props.teamMember = value;
+  }
   static validate(props: TeamRoleProps) {
     const validator = TeamValidatorFactory.create();
     const isValid = validator.validate(props);
