@@ -1,4 +1,4 @@
-import { Supplier, SupplierProps } from "./supplier";
+import { TeamMember, TeamMemberProps } from "./team-member";
 import { validate as uuidValidate } from "uuid";
 import { UniqueEntityId } from "../../../@seedwork/domain/entity/value-objects/unique-entity-id.vo";
 import { AuditFields } from "../../../@seedwork/domain/entity/value-objects/audit-fields.vo";
@@ -7,35 +7,35 @@ const testProps = {
   name: "initial name",
 };
 
-describe("Supplier Unit Test", () => {
+describe("TeamMember Unit Test", () => {
   beforeEach(() => {
-    Supplier.validate = jest.fn();
+    TeamMember.validate = jest.fn();
   });
-  test("constructor of category with all props", () => {
-    let props: SupplierProps = {
+  test("constructor with all props", () => {
+    let props: TeamMemberProps = {
       ...testProps,
     };
 
-    const auditProps = {
+    const auditFieldsProps = {
       created_by: "user",
       created_at: new Date(),
       updated_by: "new user",
       updated_at: new Date(),
     };
 
-    let entity = new Supplier(props, auditProps);
+    let entity = new TeamMember(props, auditFieldsProps);
 
-    expect(Supplier.validate).toHaveBeenCalled();
+    expect(TeamMember.validate).toHaveBeenCalled();
     expect(entity.props).toStrictEqual(props);
     expect(entity.name).toBeTruthy();
-    expect(entity.created_by).toBe(auditProps.created_by);
-    expect(entity.created_at).toBe(auditProps.created_at);
-    expect(entity.updated_by).toBe(auditProps.updated_by);
-    expect(entity.updated_at).toBe(auditProps.updated_at);
+    expect(entity.created_by).toBe(auditFieldsProps.created_by);
+    expect(entity.created_at).toBe(auditFieldsProps.created_at);
+    expect(entity.updated_by).toBe(auditFieldsProps.updated_by);
+    expect(entity.updated_at).toBe(auditFieldsProps.updated_at);
   });
 
   test("constructor with mandatory props only", () => {
-    const entity = new Supplier(testProps, { created_by: "user" });
+    const entity = new TeamMember(testProps, { created_by: "user" });
 
     expect(entity.name).toBe(testProps.name);
     expect(entity.created_at).toBeInstanceOf(Date);
@@ -48,14 +48,14 @@ describe("Supplier Unit Test", () => {
   });
 
   test("getter and setter of name prop", () => {
-    const entity = new Supplier(testProps, { created_by: "user" });
+    const entity = new TeamMember(testProps, { created_by: "user" });
     expect(entity.name).toBe(testProps.name);
     entity["name"] = "changed";
     expect(entity.name).toBe("changed");
   });
 
   test("getter and setter of auditFields prop", () => {
-    const entity = new Supplier(testProps, { created_by: "user" });
+    const entity = new TeamMember(testProps, { created_by: "user" });
     expect(entity.created_at).toBeInstanceOf(Date);
     const now = new Date();
     const auditFields = new AuditFields({
@@ -67,17 +67,17 @@ describe("Supplier Unit Test", () => {
   });
 
   test("getter of created_by prop", () => {
-    const entity = new Supplier(testProps, { created_by: "system" });
+    const entity = new TeamMember(testProps, { created_by: "system" });
     expect(entity.created_by).toBe("system");
   });
 
   test("getter of created_at prop", () => {
-    const entity = new Supplier(testProps, { created_by: "user" });
+    const entity = new TeamMember(testProps, { created_by: "user" });
     expect(entity.created_at).toBeInstanceOf(Date);
   });
 
   test("getter of updated_by prop", () => {
-    const entity = new Supplier(testProps, {
+    const entity = new TeamMember(testProps, {
       created_by: "user",
       updated_by: "system",
     });
@@ -85,7 +85,7 @@ describe("Supplier Unit Test", () => {
   });
 
   test("getter of updated_at prop", () => {
-    const entity = new Supplier(testProps, { created_by: "user" });
+    const entity = new TeamMember(testProps, { created_by: "user" });
     expect(entity.updated_at).toBeInstanceOf(Date);
   });
 
@@ -98,7 +98,7 @@ describe("Supplier Unit Test", () => {
     ];
 
     test.each(arrange)("%#) when props are %j", (item) => {
-      const entity = new Supplier(testProps, { created_by: "user" }, item.id);
+      const entity = new TeamMember(testProps, { created_by: "user" }, item.id);
       expect(entity.id).not.toBeNull();
       expect(uuidValidate(entity.id)).toBeTruthy();
     });

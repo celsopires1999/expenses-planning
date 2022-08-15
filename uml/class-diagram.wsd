@@ -5,22 +5,18 @@ class Expense {
     + year: number
     + amount: number
     + type: ExpenseType
-    + supplier: Supplier
+    + supplier_id: SupplierId
     + purchaseRequest: string
     + purchaseOrder: string
-    + team: Team
+    + team_id: TeamId
     + change()
-    + destroy()
     + addSupplier()
-    + changeSupplier()
-    + removeSupplier()
-    + addPurchaseRequisition()
-    + changePurchaseRequisition()
-    + removePurchaseRequisition()
+    + updateSupplier()
+    + addPurchaseRequest()
+    + updatePurchaseRequest()
     + addPurchaseOrder()
-    + changePurchaseOrder()
-    + removePurchaseOrder()
-
+    + updatePurchaseOrder()
+    + addPurchaseDocs()
 }
 enum ExpenseType {
     CAPEX

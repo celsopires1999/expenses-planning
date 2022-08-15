@@ -1,5 +1,5 @@
-import { Supplier } from "./../../../supplier/domain/entities/supplier";
-import { Team } from "./../../../team/domain/entities/team";
+import { SupplierId } from "../entities/supplier-id.vo";
+import { TeamId } from "../entities/team-id.vo";
 import { ExpenseProps } from "./../entities/expense";
 import ExpenseValidatorFactory, {
   ExpenseRules,
@@ -290,34 +290,34 @@ describe("ExpenseValidator Tests", () => {
     });
   });
 
-  describe("invalidation cases for supplier field", () => {
+  describe("invalidation cases for supplierId field", () => {
     const arrange = [
       {
         data: {
-          supplier: {},
+          supplier_id: {},
         },
         message: {
-          supplier: [
-            "supplier must be an instance of Supplier",
-            "supplier must be a non-empty object",
+          supplier_id: [
+            "supplier_id must be an instance of SupplierId",
+            "supplier_id must be a non-empty object",
           ],
         },
       },
       {
         data: {
-          supplier: new Team({ name: "super team" }, { created_by: "user" }),
+          supplier_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
         },
         message: {
-          supplier: ["supplier must be an instance of Supplier"],
+          supplier_id: ["supplier_id must be an instance of SupplierId"],
         },
       },
 
       {
-        data: { supplier: 5 as any },
+        data: { supplier_id: 5 as any },
         message: {
-          supplier: [
-            "supplier must be an instance of Supplier",
-            "supplier must be a non-empty object",
+          supplier_id: [
+            "supplier_id must be an instance of SupplierId",
+            "supplier_id must be a non-empty object",
           ],
         },
       },
@@ -390,7 +390,7 @@ describe("ExpenseValidator Tests", () => {
         year: 2021,
         amount: 100,
         type: ExpenseType.OPEX,
-        team: new Team({ name: "the team" }, { created_by: "system" }),
+        team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
       },
       {
         name: "some name",
@@ -398,11 +398,8 @@ describe("ExpenseValidator Tests", () => {
         year: 2021,
         amount: 100,
         type: ExpenseType.OPEX,
-        supplier: new Supplier(
-          { name: "good supplier" },
-          { created_by: "user" }
-        ),
-        team: new Team({ name: "the team" }, { created_by: "system" }),
+        supplier_id: new SupplierId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
+        team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
       },
       {
         name: "some name",
@@ -410,12 +407,9 @@ describe("ExpenseValidator Tests", () => {
         year: 2021,
         amount: 100,
         type: ExpenseType.OPEX,
-        supplier: new Supplier(
-          { name: "good supplier" },
-          { created_by: "user" }
-        ),
+        supplier_id: new SupplierId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
         purchaseRequest: "0123456789",
-        team: new Team({ name: "the team" }, { created_by: "system" }),
+        team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
       },
       {
         name: "some name",
@@ -423,13 +417,10 @@ describe("ExpenseValidator Tests", () => {
         year: 2021,
         amount: 0.01,
         type: ExpenseType.OPEX,
-        supplier: new Supplier(
-          { name: "good supplier" },
-          { created_by: "user" }
-        ),
+        supplier_id: new SupplierId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
         purchaseRequest: "0123456789",
         purchaseOrder: "9876543210",
-        team: new Team({ name: "the team" }, { created_by: "system" }),
+        team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
       },
     ];
     test.each(arrange)("Test Case #%#", (item) => {
@@ -438,49 +429,45 @@ describe("ExpenseValidator Tests", () => {
       expect(validator.errors).toBeNull;
     });
   });
-  describe("invalidation cases for team field", () => {
+  describe("invalidation cases for team_id field", () => {
     const arrange = [
       {
         data: {
-          team: null as any,
+          team_id: null as any,
         },
         message: {
-          team: [
-            "team must be an instance of Team",
-            "team should not be empty",
-            "team must be a non-empty object",
+          team_id: [
+            "team_id must be an instance of TeamId",
+            "team_id should not be empty",
+            "team_id must be a non-empty object",
           ],
         },
       },
       {
         data: {
-          team: {},
+          team_id: {},
         },
         message: {
-          team: [
-            "team must be an instance of Team",
-            "team must be a non-empty object",
+          team_id: [
+            "team_id must be an instance of TeamId",
+            "team_id must be a non-empty object",
           ],
         },
       },
       {
         data: {
-          team: new Supplier(
-            { name: "super supplier" },
-            { created_by: "user" }
-          ),
+          team_id: new SupplierId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
         },
         message: {
-          team: ["team must be an instance of Team"],
+          team_id: ["team_id must be an instance of TeamId"],
         },
       },
-
       {
-        data: { team: 5 as any },
+        data: { team_id: 5 as any },
         message: {
-          team: [
-            "team must be an instance of Team",
-            "team must be a non-empty object",
+          team_id: [
+            "team_id must be an instance of TeamId",
+            "team_id must be a non-empty object",
           ],
         },
       },

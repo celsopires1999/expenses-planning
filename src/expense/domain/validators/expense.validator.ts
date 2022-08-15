@@ -14,9 +14,9 @@ import {
   Min,
 } from "class-validator";
 import { ClassValidatorFields } from "./../../../@seedwork/domain/validators/class-validator-fields";
-import { Supplier } from "./../../../supplier/domain/entities/supplier";
-import { Team } from "./../../../team/domain/entities/team";
 import { ExpenseProps } from "./../entities/expense";
+import { SupplierId } from "./../entities/supplier-id.vo";
+import { TeamId } from "./../entities/team-id.vo";
 
 export enum ExpenseType {
   CAPEX = "capex",
@@ -50,8 +50,8 @@ export class ExpenseRules {
 
   @IsNotEmptyObject()
   @IsOptional()
-  @IsInstance(Supplier)
-  supplier: Supplier;
+  @IsInstance(SupplierId)
+  supplier_id: SupplierId;
 
   @Length(10, 10, { message: "purchaseRequest must be 10 characters" })
   @IsNumberString()
@@ -65,8 +65,8 @@ export class ExpenseRules {
 
   @IsNotEmptyObject()
   @IsNotEmpty()
-  @IsInstance(Team)
-  team: Team;
+  @IsInstance(TeamId)
+  team_id: TeamId;
 
   constructor(data: any) {
     Object.assign(this, data);
