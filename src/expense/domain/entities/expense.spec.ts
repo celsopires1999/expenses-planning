@@ -7,56 +7,21 @@ import {
 } from "../../../@seedwork/domain/entity/value-objects/audit-fields.vo";
 import { ExpenseType } from "../validators/expense.validator";
 import { UniqueEntityId } from "./../../../@seedwork/domain/entity/value-objects/unique-entity-id.vo";
-import { Supplier } from "./../../../supplier/domain/entities/supplier";
-import { Team } from "./../../../team/domain/entities/team";
 import { Expense, ExpenseProps } from "./expense";
 import { InvalidExpenseError } from "../errors/expense.error";
+import SupplierId from "./supplier-id.vo";
+import TeamId from "./team-id.vo";
 
-interface StubSupplierProps {
-  name: string;
-}
-interface StubTeamProps {
-  name: string;
-}
-class StubSupplier extends Entity<StubSupplierProps> {
-  constructor(
-    public props: StubSupplierProps,
-    auditFields: AuditFieldsProps,
-    id?: UniqueEntityId
-  ) {
-    super(props, auditFields, id);
-  }
-
-  get name(): string {
-    return this.props.name;
-  }
-}
-
-class StubTeam extends Entity<StubTeamProps> {
-  constructor(
-    public props: StubTeamProps,
-    auditFields: AuditFieldsProps,
-    id?: UniqueEntityId
-  ) {
-    super(props, auditFields, id);
-  }
-
-  get name(): string {
-    return this.props.name;
-  }
-}
 const testProps: ExpenseProps = {
   name: "initial name",
   description: "initial description",
   year: 2022,
   amount: 150000,
   type: ExpenseType.OPEX,
-  // supplier: new Supplier({ name: "good supplier" }, { created_by: "user" }),
-  supplier: new StubSupplier({ name: "good supplier" }, { created_by: "user" }),
+  supplier_id: new SupplierId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
   purchaseRequest: "1234567890",
   purchaseOrder: "0987654321",
-  // team: new Team({ name: "the best team" }, { created_by: "user" }),
-  team: new StubTeam({ name: "the best team" }, { created_by: "user" }),
+  team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
 };
 
 describe("Expense Unit Test", () => {
@@ -84,10 +49,10 @@ describe("Expense Unit Test", () => {
     expect(entity.year).toBe(props.year);
     expect(entity.amount).toBe(props.amount);
     expect(entity.type).toBe(props.type);
-    expect(entity.supplier).toStrictEqual(props.supplier);
+    expect(entity.supplier_id).toStrictEqual(props.supplier_id);
     expect(entity.purchaseRequest).toBe(props.purchaseRequest);
     expect(entity.purchaseOrder).toBe(props.purchaseOrder);
-    expect(entity.team).toStrictEqual(props.team);
+    expect(entity.team_id).toStrictEqual(props.team_id);
     expect(entity.created_by).toBe(auditProps.created_by);
     expect(entity.created_at).toBe(auditProps.created_at);
     expect(entity.updated_by).toBe(auditProps.updated_by);
@@ -96,7 +61,7 @@ describe("Expense Unit Test", () => {
 
   test("constructor with mandatory props only", () => {
     const props = omit(testProps, [
-      "supplier",
+      "supplier_id",
       "purchaseRequest",
       "purchaseOrder",
     ]);
@@ -144,16 +109,12 @@ describe("Expense Unit Test", () => {
     expect(entity.type).toBe(ExpenseType.CAPEX);
   });
 
-  test("getter and setter of supplier prop", () => {
-    // const supplier = new Supplier(
-    const supplier = new StubSupplier(
-      { name: "better supplier" },
-      { created_by: "system" }
-    );
+  test("getter and setter of supplier_id prop", () => {
+    const supplier_id = new SupplierId("47f3b2ad-8844-492a-a1a1-75a8c838daae");
     const entity = new Expense(testProps, { created_by: "user" });
-    expect(entity.supplier).toBe(testProps.supplier);
-    entity["supplier"] = supplier;
-    expect(entity.supplier).toStrictEqual(supplier);
+    expect(entity.supplier_id).toBe(testProps.supplier_id);
+    entity["supplier_id"] = supplier_id;
+    expect(entity.supplier_id).toStrictEqual(supplier_id);
   });
 
   test("getter and setter of purchaseRequest prop", () => {
@@ -170,16 +131,12 @@ describe("Expense Unit Test", () => {
     expect(entity.purchaseOrder).toBe("0123456789");
   });
 
-  test("getter and setter of team prop", () => {
-    // const team = new Team({ name: "better team" }, { created_by: "system" });
-    const team = new StubTeam(
-      { name: "better team" },
-      { created_by: "system" }
-    );
+  test("getter and setter of team_id prop", () => {
+    const team_id = new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae");
     const entity = new Expense(testProps, { created_by: "user" });
-    expect(entity.team).toBe(testProps.team);
-    entity["team"] = team;
-    expect(entity.team).toStrictEqual(team);
+    expect(entity.team_id).toBe(testProps.team_id);
+    entity["team_id"] = team_id;
+    expect(entity.team_id).toStrictEqual(team_id);
   });
 
   test("getter and setter of auditFields prop", () => {
@@ -240,7 +197,7 @@ describe("Expense Unit Test", () => {
         year: 2022,
         amount: 2500.55,
         type: ExpenseType.CAPEX,
-        team: new StubTeam({ name: "super team" }, { created_by: "user1" }),
+        team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
       };
       const entity = new Expense(props, { created_by: "user1" });
       expect(entity.toJSON()).toMatchObject(props);
@@ -278,10 +235,10 @@ describe("Expense Unit Test", () => {
       expect(entity.type).toBe(ExpenseType.OPEX);
       expect(entity.updated_by).toBe("user7");
 
-      const team = new StubTeam({ name: "new team" }, { created_by: "user" });
-      entity.change({ team: team }, "user8");
+      const team_id = new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae");
+      entity.change({ team_id: team_id }, "user8");
       expect(Expense.validate).toHaveBeenCalledTimes(8);
-      expect(entity.team).toBe(team);
+      expect(entity.team_id).toBe(team_id);
       expect(entity.updated_by).toBe("user8");
     });
   });
@@ -293,24 +250,21 @@ describe("Expense Unit Test", () => {
       year: 2022,
       amount: 2500.55,
       type: ExpenseType.CAPEX,
-      team: new StubTeam({ name: "super team" }, { created_by: "user" }),
+      team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
     };
     const entity = new Expense(props, { created_by: "user" });
     expect(Expense.validate).toHaveBeenCalledTimes(1);
 
-    const supplier = new StubSupplier(
-      { name: "good supplier" },
-      { created_by: "user" }
-    );
+    const supplier_id = new SupplierId("47f3b2ad-8844-492a-a1a1-75a8c838daae");
 
-    entity.addSupplier(supplier, "user1");
+    entity.addSupplier(supplier_id, "user1");
 
     expect(Expense.validate).toHaveBeenCalledTimes(2);
-    expect(entity.supplier).toStrictEqual(supplier);
+    expect(entity.supplier_id).toStrictEqual(supplier_id);
     expect(entity.updated_by).toBe("user1");
 
     expect(() => entity.addSupplier(null, "user2")).toThrowError(
-      new InvalidExpenseError(`Supplier must be provided`)
+      new InvalidExpenseError(`SupplierId must be provided`)
     );
   });
 
@@ -321,30 +275,26 @@ describe("Expense Unit Test", () => {
       year: 2022,
       amount: 2500.55,
       type: ExpenseType.CAPEX,
-      supplier: new StubSupplier(
-        { name: "good supplier" },
-        { created_by: "user" }
-      ),
-      team: new StubTeam({ name: "super team" }, { created_by: "user" }),
+      supplier_id: new SupplierId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
+      team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
     };
     const entity = new Expense(props, { created_by: "user" });
     expect(Expense.validate).toHaveBeenCalledTimes(1);
-    expect(entity.supplier.name).toBe("good supplier");
-
-    const supplier = new StubSupplier(
-      { name: "very good supplier" },
-      { created_by: "user" }
+    expect(entity.supplier_id.value).toBe(
+      "47f3b2ad-8844-492a-a1a1-75a8c838daae"
     );
 
-    entity.updateSupplier(supplier, "user1");
+    const supplier_id = new SupplierId("47f3b2ad-8844-492a-a1a1-75a8c838daae");
+
+    entity.updateSupplier(supplier_id, "user1");
 
     expect(Expense.validate).toHaveBeenCalledTimes(2);
-    expect(entity.supplier).toStrictEqual(supplier);
+    expect(entity.supplier_id).toStrictEqual(supplier_id);
     expect(entity.updated_by).toBe("user1");
 
     entity.updateSupplier(undefined, "user2");
 
-    expect(entity.supplier).toBeNull();
+    expect(entity.supplier_id).toBeNull();
   });
 
   test("addPurchaseRequest method", () => {
@@ -354,11 +304,8 @@ describe("Expense Unit Test", () => {
       year: 2022,
       amount: 2500.55,
       type: ExpenseType.CAPEX,
-      supplier: new StubSupplier(
-        { name: "good supplier" },
-        { created_by: "user" }
-      ),
-      team: new StubTeam({ name: "super team" }, { created_by: "user" }),
+      supplier_id: new SupplierId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
+      team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
     };
     const entity = new Expense(props, { created_by: "user" });
     entity.addPurchaseRequest("1234567890", "user1");
@@ -381,12 +328,9 @@ describe("Expense Unit Test", () => {
       year: 2022,
       amount: 2500.55,
       type: ExpenseType.CAPEX,
-      supplier: new StubSupplier(
-        { name: "good supplier" },
-        { created_by: "user" }
-      ),
+      supplier_id: new SupplierId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
       purchaseRequest: "1234567890",
-      team: new StubTeam({ name: "super team" }, { created_by: "user" }),
+      team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
     };
     const entity = new Expense(props, { created_by: "user" });
     entity.updatePurchaseRequest("0987654321", "user1");
@@ -405,11 +349,8 @@ describe("Expense Unit Test", () => {
       year: 2022,
       amount: 2500.55,
       type: ExpenseType.CAPEX,
-      supplier: new StubSupplier(
-        { name: "good supplier" },
-        { created_by: "user" }
-      ),
-      team: new StubTeam({ name: "super team" }, { created_by: "user" }),
+      supplier_id: new SupplierId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
+      team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
     };
     const entity = new Expense(props, { created_by: "user" });
     entity.addPurchaseOrder("1234567890", "user1");
@@ -432,12 +373,9 @@ describe("Expense Unit Test", () => {
       year: 2022,
       amount: 2500.55,
       type: ExpenseType.CAPEX,
-      supplier: new StubSupplier(
-        { name: "good supplier" },
-        { created_by: "user" }
-      ),
+      supplier_id: new SupplierId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
       purchaseOrder: "1234567890",
-      team: new StubTeam({ name: "super team" }, { created_by: "user" }),
+      team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
     };
     const entity = new Expense(props, { created_by: "user" });
     entity.updatePurchaseOrder("0987654321", "user1");
@@ -456,11 +394,8 @@ describe("Expense Unit Test", () => {
       year: 2022,
       amount: 2500.55,
       type: ExpenseType.CAPEX,
-      supplier: new StubSupplier(
-        { name: "good supplier" },
-        { created_by: "user" }
-      ),
-      team: new StubTeam({ name: "super team" }, { created_by: "user" }),
+      supplier_id: new SupplierId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
+      team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
     };
     const entity = new Expense(props, { created_by: "user" });
     entity.addPurchaseDocs("1234567890", "0987654321", "user1");

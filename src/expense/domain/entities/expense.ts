@@ -7,8 +7,8 @@ import {
 import { Entity } from "./../../../@seedwork/domain/entity/entity";
 import { UniqueEntityId } from "./../../../@seedwork/domain/entity/value-objects/unique-entity-id.vo";
 import { EntityValidationError } from "./../../../@seedwork/domain/errors/validation.error";
-import { Supplier } from "./../../../supplier/domain/entities/supplier";
-import { Team } from "./../../../team/domain/entities/team";
+import { SupplierId } from "./supplier-id.vo";
+import { TeamId } from "./team-id.vo";
 
 export interface ExpenseProps {
   name: string;
@@ -16,10 +16,10 @@ export interface ExpenseProps {
   year: number;
   amount: number;
   type: ExpenseType;
-  supplier?: Supplier;
+  supplier_id?: SupplierId;
   purchaseRequest?: string;
   purchaseOrder?: string;
-  team: Team;
+  team_id: TeamId;
 }
 
 export class Expense extends Entity<ExpenseProps> {
@@ -35,10 +35,10 @@ export class Expense extends Entity<ExpenseProps> {
     this.year = this.props.year;
     this.amount = this.props.amount;
     this.type = this.props.type;
-    this.supplier = this.props.supplier;
+    this.supplier_id = this.props.supplier_id;
     this.purchaseRequest = this.props.purchaseRequest;
     this.purchaseOrder = this.props.purchaseOrder;
-    this.team = this.props.team;
+    this.team_id = this.props.team_id;
   }
 
   change(
@@ -48,7 +48,7 @@ export class Expense extends Entity<ExpenseProps> {
       year?: number;
       amount?: number;
       type?: ExpenseType;
-      team?: Team;
+      team_id?: TeamId;
     },
     updated_by: string
   ): void {
@@ -59,7 +59,7 @@ export class Expense extends Entity<ExpenseProps> {
     _props.year = props.year ?? this.year;
     _props.amount = props.amount ?? this.amount;
     _props.type = props.type ?? this.type;
-    _props.team = props.team ?? this.team;
+    _props.team_id = props.team_id ?? this.team_id;
 
     Expense.validate(_props);
 
@@ -68,27 +68,27 @@ export class Expense extends Entity<ExpenseProps> {
     this.year = _props.year;
     this.amount = _props.amount;
     this.type = _props.type;
-    this.team = _props.team;
+    this.team_id = _props.team_id;
 
     super.updateAuditFields(updated_by);
   }
 
-  addSupplier(supplier: Supplier, updated_by: string): void {
-    if (!supplier) {
-      throw new InvalidExpenseError(`Supplier must be provided`);
+  addSupplier(supplier_id: SupplierId, updated_by: string): void {
+    if (!supplier_id) {
+      throw new InvalidExpenseError(`SupplierId must be provided`);
     }
-    this.handleSupplier(supplier, updated_by);
+    this.handleSupplier(supplier_id, updated_by);
   }
 
-  updateSupplier(supplier: Supplier, updated_by: string): void {
-    this.handleSupplier(supplier, updated_by);
+  updateSupplier(supplier_id: SupplierId, updated_by: string): void {
+    this.handleSupplier(supplier_id, updated_by);
   }
 
-  private handleSupplier(supplier: Supplier, updated_by: string): void {
+  private handleSupplier(supplier_id: SupplierId, updated_by: string): void {
     const _props = { ...this.props };
-    _props.supplier = supplier;
+    _props.supplier_id = supplier_id;
     Expense.validate(_props);
-    this.supplier = _props.supplier;
+    this.supplier_id = _props.supplier_id;
     super.updateAuditFields(updated_by);
   }
 
@@ -204,12 +204,12 @@ export class Expense extends Entity<ExpenseProps> {
     this.props.type = value;
   }
 
-  get supplier(): Supplier {
-    return this.props.supplier;
+  get supplier_id(): SupplierId {
+    return this.props.supplier_id;
   }
 
-  private set supplier(value: Supplier) {
-    this.props.supplier = value ?? null;
+  private set supplier_id(value: SupplierId) {
+    this.props.supplier_id = value ?? null;
   }
 
   get purchaseRequest(): string {
@@ -228,12 +228,12 @@ export class Expense extends Entity<ExpenseProps> {
     this.props.purchaseOrder = value ?? null;
   }
 
-  get team(): Team {
-    return this.props.team;
+  get team_id(): TeamId {
+    return this.props.team_id;
   }
 
-  private set team(value: Team) {
-    this.props.team = value;
+  private set team_id(value: TeamId) {
+    this.props.team_id = value;
   }
 
   static validate(props: ExpenseProps) {

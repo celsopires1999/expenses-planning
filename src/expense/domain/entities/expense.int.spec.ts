@@ -1,9 +1,9 @@
 import { InvalidExpenseError } from "../errors/expense.error";
 import { ExpenseType } from "../validators/expense.validator";
 import { EntityValidationError } from "./../../../@seedwork/domain/errors/validation.error";
-import { Supplier } from "./../../../supplier/domain/entities/supplier";
-import { Team } from "./../../../team/domain/entities/team";
 import { Expense, ExpenseProps } from "./expense";
+import { SupplierId } from "./supplier-id.vo";
+import { TeamId } from "./team-id.vo";
 
 describe("Expense Integration Tests", () => {
   describe("validations with errors", () => {
@@ -32,10 +32,10 @@ describe("Expense Integration Tests", () => {
           "amount must not be less than 0.01",
         ],
         type: ["type should not be empty", "type must be a valid enum value"],
-        team: [
-          "team must be an instance of Team",
-          "team should not be empty",
-          "team must be a non-empty object",
+        team_id: [
+          "team_id must be an instance of TeamId",
+          "team_id should not be empty",
+          "team_id must be a non-empty object",
         ],
       });
     });
@@ -147,13 +147,10 @@ describe("Expense Integration Tests", () => {
         year: 2022,
         amount: 2500.55,
         type: ExpenseType.CAPEX,
-        supplier: new Supplier(
-          { name: "good supplier" },
-          { created_by: "super user" }
-        ),
+        supplier_id: new SupplierId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
         purchaseRequest: "1234567890",
         purchaseOrder: "0987654321",
-        team: new Team({ name: "super team" }, { created_by: "user" }),
+        team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
       };
       entity = new Expense(props, { created_by: "user" });
     });
@@ -224,14 +221,14 @@ describe("Expense Integration Tests", () => {
     });
     test("team prop", () => {
       try {
-        entity.change({ team: "fake" as any }, "new user");
+        entity.change({ team_id: "fake" as any }, "new user");
         fail("The entity has not thrown an EntityValidationError");
       } catch (e) {
         const err = e as EntityValidationError;
         expect(err.error).toMatchObject({
-          team: [
-            "team must be an instance of Team",
-            "team must be a non-empty object",
+          team_id: [
+            "team_id must be an instance of TeamId",
+            "team_id must be a non-empty object",
           ],
         });
       }
@@ -245,7 +242,7 @@ describe("Expense Integration Tests", () => {
             year: "fake year" as any,
             amount: "fake amount" as any,
             type: "fake type" as any,
-            team: "fake team" as any,
+            team_id: "fake team" as any,
           },
           "new user"
         );
@@ -268,9 +265,9 @@ describe("Expense Integration Tests", () => {
             "amount must not be less than 0.01",
           ],
           type: ["type must be a valid enum value"],
-          team: [
-            "team must be an instance of Team",
-            "team must be a non-empty object",
+          team_id: [
+            "team_id must be an instance of TeamId",
+            "team_id must be a non-empty object",
           ],
         });
       }
@@ -283,22 +280,19 @@ describe("Expense Integration Tests", () => {
       year: 2022,
       amount: 2500.55,
       type: ExpenseType.CAPEX,
-      team: new Team({ name: "super team" }, { created_by: "user" }),
+      team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
     };
     const entity = new Expense(props, { created_by: "user" });
 
-    const supplier = new Supplier(
-      { name: "good supplier" },
-      { created_by: "user" }
-    );
+    const supplier_id = new SupplierId("47f3b2ad-8844-492a-a1a1-75a8c838daae");
 
-    entity.addSupplier(supplier, "user1");
+    entity.addSupplier(supplier_id, "user1");
 
-    expect(entity.supplier).toStrictEqual(supplier);
+    expect(entity.supplier_id).toStrictEqual(supplier_id);
     expect(entity.updated_by).toBe("user1");
 
     expect(() => entity.addSupplier(null, "user2")).toThrowError(
-      new InvalidExpenseError(`Supplier must be provided`)
+      new InvalidExpenseError(`SupplierId must be provided`)
     );
   });
 
@@ -309,25 +303,24 @@ describe("Expense Integration Tests", () => {
       year: 2022,
       amount: 2500.55,
       type: ExpenseType.CAPEX,
-      supplier: new Supplier({ name: "good supplier" }, { created_by: "user" }),
-      team: new Team({ name: "super team" }, { created_by: "user" }),
+      supplier_id: new SupplierId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
+      team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
     };
     const entity = new Expense(props, { created_by: "user" });
-    expect(entity.supplier.name).toBe("good supplier");
-
-    const supplier = new Supplier(
-      { name: "very good supplier" },
-      { created_by: "user" }
+    expect(entity.supplier_id.value).toBe(
+      "47f3b2ad-8844-492a-a1a1-75a8c838daae"
     );
 
-    entity.updateSupplier(supplier, "user1");
+    const supplier_id = new SupplierId("47f3b2ad-8844-492a-a1a1-75a8c838daae");
 
-    expect(entity.supplier).toStrictEqual(supplier);
+    entity.updateSupplier(supplier_id, "user1");
+
+    expect(entity.supplier_id).toBe(supplier_id);
     expect(entity.updated_by).toBe("user1");
 
     entity.updateSupplier(undefined, "user2");
 
-    expect(entity.supplier).toBeNull();
+    expect(entity.supplier_id).toBeNull();
   });
 
   test("addPurchaseRequest method", () => {
@@ -337,8 +330,8 @@ describe("Expense Integration Tests", () => {
       year: 2022,
       amount: 2500.55,
       type: ExpenseType.CAPEX,
-      supplier: new Supplier({ name: "good supplier" }, { created_by: "user" }),
-      team: new Team({ name: "super team" }, { created_by: "user" }),
+      supplier_id: new SupplierId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
+      team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
     };
     const entity = new Expense(props, { created_by: "user" });
     entity.addPurchaseRequest("1234567890", "user1");
@@ -361,9 +354,9 @@ describe("Expense Integration Tests", () => {
       year: 2022,
       amount: 2500.55,
       type: ExpenseType.CAPEX,
-      supplier: new Supplier({ name: "good supplier" }, { created_by: "user" }),
+      supplier_id: new SupplierId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
       purchaseRequest: "1234567890",
-      team: new Team({ name: "super team" }, { created_by: "user" }),
+      team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
     };
     const entity = new Expense(props, { created_by: "user" });
     entity.updatePurchaseRequest("0987654321", "user1");
@@ -382,8 +375,8 @@ describe("Expense Integration Tests", () => {
       year: 2022,
       amount: 2500.55,
       type: ExpenseType.CAPEX,
-      supplier: new Supplier({ name: "good supplier" }, { created_by: "user" }),
-      team: new Team({ name: "super team" }, { created_by: "user" }),
+      supplier_id: new SupplierId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
+      team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
     };
     const entity = new Expense(props, { created_by: "user" });
     entity.addPurchaseOrder("1234567890", "user1");
@@ -406,9 +399,9 @@ describe("Expense Integration Tests", () => {
       year: 2022,
       amount: 2500.55,
       type: ExpenseType.CAPEX,
-      supplier: new Supplier({ name: "good supplier" }, { created_by: "user" }),
+      supplier_id: new SupplierId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
       purchaseOrder: "1234567890",
-      team: new Team({ name: "super team" }, { created_by: "user" }),
+      team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
     };
     const entity = new Expense(props, { created_by: "user" });
     entity.updatePurchaseOrder("0987654321", "user1");
@@ -427,8 +420,8 @@ describe("Expense Integration Tests", () => {
       year: 2022,
       amount: 2500.55,
       type: ExpenseType.CAPEX,
-      supplier: new Supplier({ name: "good supplier" }, { created_by: "user" }),
-      team: new Team({ name: "super team" }, { created_by: "user" }),
+      supplier_id: new SupplierId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
+      team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
     };
     const entity = new Expense(props, { created_by: "user" });
     entity.addPurchaseDocs("1234567890", "0987654321", "user1");
@@ -476,7 +469,7 @@ describe("Expense Integration Tests", () => {
           year: 2022,
           amount: 2000.55,
           type: ExpenseType.CAPEX,
-          team: new Team({ name: "super team" }, { created_by: "user" }),
+          team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
         },
         {
           name: "some name",
@@ -484,11 +477,8 @@ describe("Expense Integration Tests", () => {
           year: 2022,
           amount: 2000.55,
           type: ExpenseType.CAPEX,
-          supplier: new Supplier(
-            { name: "super supplier" },
-            { created_by: "user" }
-          ),
-          team: new Team({ name: "super team" }, { created_by: "user" }),
+          supplier_id: new SupplierId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
+          team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
         },
         {
           name: "some name",
@@ -496,12 +486,9 @@ describe("Expense Integration Tests", () => {
           year: 2022,
           amount: 2000.55,
           type: ExpenseType.CAPEX,
-          supplier: new Supplier(
-            { name: "super supplier" },
-            { created_by: "user" }
-          ),
+          supplier_id: new SupplierId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
           purchaseRequest: "1234567890",
-          team: new Team({ name: "super team" }, { created_by: "user" }),
+          team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
         },
         {
           name: "some name",
@@ -509,13 +496,10 @@ describe("Expense Integration Tests", () => {
           year: 2022,
           amount: 2000.55,
           type: ExpenseType.CAPEX,
-          supplier: new Supplier(
-            { name: "super supplier" },
-            { created_by: "user" }
-          ),
+          supplier_id: new SupplierId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
           purchaseRequest: "1234567890",
           purchaseOrder: "9876543210",
-          team: new Team({ name: "super team" }, { created_by: "user" }),
+          team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
         },
       ];
 
@@ -532,13 +516,10 @@ describe("Expense Integration Tests", () => {
         year: 2022,
         amount: 2500.55,
         type: ExpenseType.CAPEX,
-        supplier: new Supplier(
-          { name: "good supplier" },
-          { created_by: "super user" }
-        ),
+        supplier_id: new SupplierId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
         purchaseRequest: "1234567890",
         purchaseOrder: "0987654321",
-        team: new Team({ name: "super team" }, { created_by: "user" }),
+        team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
       };
       const entity = new Expense(props, { created_by: "user" });
       expect(entity.toJSON()).toMatchObject(props);
@@ -552,12 +533,12 @@ describe("Expense Integration Tests", () => {
         year: 2023,
         amount: 52.44,
         type: ExpenseType.OPEX,
-        team: new Team({ name: "gret team" }, { created_by: "super user" }),
+        team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
       };
       entity.change(changeProps, "new user");
 
       expect(entity.props).toMatchObject(changeProps);
-      expect(entity.supplier).toStrictEqual(oldProps.supplier);
+      expect(entity.supplier_id.value).toBe(oldProps.supplier_id.value);
       expect(entity.purchaseRequest).toBe(oldProps.purchaseRequest);
       expect(entity.purchaseOrder).toBe(oldProps.purchaseOrder);
     });
