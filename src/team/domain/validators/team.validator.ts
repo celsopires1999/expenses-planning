@@ -22,6 +22,9 @@ export class TeamRules {
   @HasRoles({
     message: "roles are invalid",
   })
+  @IsNotDuplicated({
+    message: "duplicated roles with the same team member",
+  })
   roles: TeamRole[];
 
   constructor(data: any) {
@@ -52,6 +55,54 @@ export function HasRoles(validationOptions?: ValidationOptions) {
     });
   };
 }
+
+export function IsNotDuplicated(validationOptions?: ValidationOptions) {
+  return function (object: Object, propertyName: string) {
+    registerDecorator({
+      name: "isNotDuplicated",
+      target: object.constructor,
+      propertyName: propertyName,
+      options: validationOptions,
+      constraints: [],
+      validator: {
+        validate(value: TeamRole[]) {
+          if (!Array.isArray(value)) {
+            return true;
+          }
+          return findDuplicated(value);
+        },
+      },
+    });
+  };
+}
+
+function findDuplicated(value: TeamRole[]): boolean {
+  let validTeam = true;
+
+  for (let outerRole of value) {
+    let count = 0;
+    if (!(outerRole instanceof TeamRole)) {
+      return validTeam;
+    }
+    value.forEach((innerRole) => {
+      if (
+        innerRole.name === outerRole.name &&
+        innerRole.team_member_id.value === outerRole.team_member_id.value
+      ) {
+        count++;
+        if (count > 1) {
+          validTeam = false;
+        }
+      }
+    });
+    if (!validTeam) {
+      break;
+    }
+  }
+
+  return validTeam;
+}
+
 export class TeamValidator extends ClassValidatorFields<TeamRules> {
   validate(data: TeamProps): boolean {
     return super.validate(new TeamRules(data));

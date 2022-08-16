@@ -51,7 +51,9 @@ describe("TeamValidator Tests", () => {
     const arrange = [
       {
         data: { name: "some team", roles: null as any },
-        message: { roles: ["roles should not be empty", "roles are invalid"] },
+        message: {
+          roles: ["roles should not be empty", "roles are invalid"],
+        },
       },
       {
         data: { name: "some team", roles: [new Date()] },
@@ -60,6 +62,52 @@ describe("TeamValidator Tests", () => {
             "each value in roles must be an instance of TeamRole",
             "roles are invalid",
           ],
+        },
+      },
+      {
+        data: {
+          name: "some team",
+          roles: [
+            new TeamRole(
+              {
+                name: RoleName.MANAGER,
+                team_member_id: new TeamMemberId(
+                  "25a68560-05cb-4608-91b3-0c9e9daf0bb9"
+                ),
+              },
+              { created_by: "user" }
+            ),
+            new TeamRole(
+              {
+                name: RoleName.MANAGER,
+                team_member_id: new TeamMemberId(
+                  "25a68560-05cb-4608-91b3-0c9e9daf0bb9"
+                ),
+              },
+              { created_by: "user" }
+            ),
+            new TeamRole(
+              {
+                name: RoleName.ANALYST,
+                team_member_id: new TeamMemberId(
+                  "25a68560-05cb-4608-91b3-0c9e9daf0bb9"
+                ),
+              },
+              { created_by: "user" }
+            ),
+            new TeamRole(
+              {
+                name: RoleName.DEPUTY,
+                team_member_id: new TeamMemberId(
+                  "25a68560-05cb-4608-91b3-0c9e9daf0bb9"
+                ),
+              },
+              { created_by: "user" }
+            ),
+          ],
+        },
+        message: {
+          roles: ["duplicated roles with the same team member"],
         },
       },
     ];
@@ -97,6 +145,65 @@ describe("TeamValidator Tests", () => {
               name: RoleName.DEPUTY,
               team_member_id: new TeamMemberId(
                 "25a68560-05cb-4608-91b3-0c9e9daf0bb9"
+              ),
+            },
+            { created_by: "user" }
+          ),
+        ],
+      },
+      {
+        name: "some name",
+        roles: [
+          new TeamRole(
+            {
+              name: RoleName.MANAGER,
+              team_member_id: new TeamMemberId(
+                "25a68560-05cb-4608-91b3-0c9e9daf0bb9"
+              ),
+            },
+            { created_by: "user" }
+          ),
+          new TeamRole(
+            {
+              name: RoleName.MANAGER,
+              team_member_id: new TeamMemberId(
+                "512eacd0-82b6-436b-93f9-2501bb45a32d"
+              ),
+            },
+            { created_by: "user" }
+          ),
+          new TeamRole(
+            {
+              name: RoleName.ANALYST,
+              team_member_id: new TeamMemberId(
+                "25a68560-05cb-4608-91b3-0c9e9daf0bb9"
+              ),
+            },
+            { created_by: "user" }
+          ),
+          new TeamRole(
+            {
+              name: RoleName.ANALYST,
+              team_member_id: new TeamMemberId(
+                "512eacd0-82b6-436b-93f9-2501bb45a32d"
+              ),
+            },
+            { created_by: "user" }
+          ),
+          new TeamRole(
+            {
+              name: RoleName.DEPUTY,
+              team_member_id: new TeamMemberId(
+                "25a68560-05cb-4608-91b3-0c9e9daf0bb9"
+              ),
+            },
+            { created_by: "user" }
+          ),
+          new TeamRole(
+            {
+              name: RoleName.DEPUTY,
+              team_member_id: new TeamMemberId(
+                "512eacd0-82b6-436b-93f9-2501bb45a32d"
               ),
             },
             { created_by: "user" }
