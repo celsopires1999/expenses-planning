@@ -1,3 +1,5 @@
+import { RoleName } from "../validators/team-role.validator";
+import { TeamMemberId } from "./team-member-id.vo";
 import { TeamRole, TeamRoleProps } from "./team-role";
 
 describe("TeamRole Integration Tests", () => {
@@ -9,8 +11,7 @@ describe("TeamRole Integration Tests", () => {
           message: {
             name: [
               "name should not be empty",
-              "name must be a string",
-              "name must be shorter than or equal to 255 characters",
+              "name must be a valid enum value",
             ],
           },
         },
@@ -19,48 +20,41 @@ describe("TeamRole Integration Tests", () => {
           message: {
             name: [
               "name should not be empty",
-              "name must be a string",
-              "name must be shorter than or equal to 255 characters",
+              "name must be a valid enum value",
             ],
           },
         },
         {
           name: "",
           message: {
-            name: ["name should not be empty"],
+            name: [
+              "name should not be empty",
+              "name must be a valid enum value",
+            ],
           },
         },
         {
           name: 5,
           message: {
-            name: [
-              "name must be a string",
-              "name must be shorter than or equal to 255 characters",
-            ],
+            name: ["name must be a valid enum value"],
           },
         },
         {
           name: true,
           message: {
-            name: [
-              "name must be a string",
-              "name must be shorter than or equal to 255 characters",
-            ],
+            name: ["name must be a valid enum value"],
           },
         },
         {
           name: false,
           message: {
-            name: [
-              "name must be a string",
-              "name must be shorter than or equal to 255 characters",
-            ],
+            name: ["name must be a valid enum value"],
           },
         },
         {
           name: "a".repeat(256),
           message: {
-            name: ["name must be shorter than or equal to 255 characters"],
+            name: ["name must be a valid enum value"],
           },
         },
       ];
@@ -72,13 +66,21 @@ describe("TeamRole Integration Tests", () => {
     });
   });
   describe("successfull operations", () => {
-    describe("should create a supplier", () => {
-      const arrange: TeamRoleProps[] = [{ name: "some name" }];
+    describe("should create a team role", () => {
+      const arrange: TeamRoleProps[] = [
+        {
+          name: RoleName.ANALYST,
+          team_member_id: new TeamMemberId(
+            "25a68560-05cb-4608-91b3-0c9e9daf0bb9"
+          ),
+        },
+      ];
 
-      test.each(arrange)("%#) when props are %o ", (i) => {
+      test.each(arrange)("Test Case: #%#", (i) => {
         const entity = new TeamRole(
           {
             name: i.name,
+            team_member_id: i.team_member_id,
           },
           { created_by: "system" }
         );

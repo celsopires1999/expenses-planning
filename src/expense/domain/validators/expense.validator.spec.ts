@@ -423,7 +423,7 @@ describe("ExpenseValidator Tests", () => {
         team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
       },
     ];
-    test.each(arrange)("Test Case #%#", (item) => {
+    test.each(arrange)("Test Case: #%#", (item) => {
       expect(validator.validate(item)).toBeTruthy();
       expect(validator.validatedData).toStrictEqual(new ExpenseRules(item));
       expect(validator.errors).toBeNull;
@@ -473,7 +473,7 @@ describe("ExpenseValidator Tests", () => {
       },
     ];
 
-    test.each(arrange)("Test Case #%# - team field", (i) => {
+    test.each(arrange)("Test Case: #%# - team field", (i) => {
       expect({ validator, data: i.data }).containsErrorMessages(i.message);
     });
   });

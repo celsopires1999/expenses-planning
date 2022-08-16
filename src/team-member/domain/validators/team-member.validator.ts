@@ -1,4 +1,4 @@
-import { TeamMemberProps } from "../entities/team-member";
+import { TeamMemberProps } from "../../../team-member/domain/entities/team-member";
 import { IsNotEmpty, IsString, MaxLength } from "class-validator";
 import { ClassValidatorFields } from "../../../@seedwork/domain/validators/class-validator-fields";
 

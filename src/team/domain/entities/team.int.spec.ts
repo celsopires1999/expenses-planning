@@ -1,4 +1,7 @@
+import { RoleName } from "../validators/team-role.validator";
 import { Team, TeamProps } from "./team";
+import TeamMemberId from "./team-member-id.vo";
+import { TeamRole } from "./team-role";
 
 describe("Team Integration Tests", () => {
   describe("validations with errors", () => {
@@ -72,13 +75,43 @@ describe("Team Integration Tests", () => {
     });
   });
   describe("successfull operations", () => {
-    describe("should create a supplier", () => {
-      const arrange: TeamProps[] = [{ name: "some name" }];
+    describe("should create a team", () => {
+      const roles = [
+        new TeamRole(
+          {
+            name: RoleName.MANAGER,
+            team_member_id: new TeamMemberId(
+              "25a68560-05cb-4608-91b3-0c9e9daf0bb9"
+            ),
+          },
+          { created_by: "user" }
+        ),
+        new TeamRole(
+          {
+            name: RoleName.ANALYST,
+            team_member_id: new TeamMemberId(
+              "25a68560-05cb-4608-91b3-0c9e9daf0bb9"
+            ),
+          },
+          { created_by: "user" }
+        ),
+        new TeamRole(
+          {
+            name: RoleName.DEPUTY,
+            team_member_id: new TeamMemberId(
+              "25a68560-05cb-4608-91b3-0c9e9daf0bb9"
+            ),
+          },
+          { created_by: "user" }
+        ),
+      ];
+      const arrange: TeamProps[] = [{ name: "some name", roles }];
 
-      test.each(arrange)("%#) when props are %o ", (i) => {
+      test.each(arrange)("Test Case: #%#", (i) => {
         const entity = new Team(
           {
             name: i.name,
+            roles: i.roles,
           },
           { created_by: "system" }
         );

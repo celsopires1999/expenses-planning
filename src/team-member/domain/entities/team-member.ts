@@ -2,7 +2,7 @@ import { Entity } from "../../../@seedwork/domain/entity/entity";
 import { AuditFieldsProps } from "../../../@seedwork/domain/entity/value-objects/audit-fields.vo";
 import { UniqueEntityId } from "../../../@seedwork/domain/entity/value-objects/unique-entity-id.vo";
 import { EntityValidationError } from "../../../@seedwork/domain/errors/validation.error";
-import { TeamValidatorFactory } from "../validators/team.validator";
+import { TeamMemberValidatorFactory } from "../validators/team-member.validator";
 
 export interface TeamMemberProps {
   name: string;
@@ -28,7 +28,7 @@ export class TeamMember extends Entity<TeamMemberProps> {
   }
 
   static validate(props: TeamMemberProps) {
-    const validator = TeamValidatorFactory.create();
+    const validator = TeamMemberValidatorFactory.create();
     const isValid = validator.validate(props);
     if (!isValid) {
       throw new EntityValidationError(validator.errors);

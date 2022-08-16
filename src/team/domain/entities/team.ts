@@ -1,11 +1,16 @@
-import { AuditFieldsProps } from "../../../@seedwork/domain/entity/value-objects/audit-fields.vo";
-import { TeamValidatorFactory } from "../validators/team.validator";
 import { Entity } from "../../../@seedwork/domain/entity/entity";
+import { AuditFieldsProps } from "../../../@seedwork/domain/entity/value-objects/audit-fields.vo";
 import { UniqueEntityId } from "../../../@seedwork/domain/entity/value-objects/unique-entity-id.vo";
 import { EntityValidationError } from "../../../@seedwork/domain/errors/validation.error";
+import { TeamValidationError } from "../errors/team-validation.error";
+import { TeamValidatorFactory } from "../validators/team.validator";
+import { FieldsError } from "./../../../@seedwork/domain/validators/validator-fields-interface";
+import { RoleName } from "./../validators/team-role.validator";
+import { TeamRole } from "./team-role";
 
 export interface TeamProps {
   name: string;
+  roles: TeamRole[];
 }
 
 export class Team extends Entity<TeamProps> {
@@ -17,6 +22,7 @@ export class Team extends Entity<TeamProps> {
     Team.validate(props);
     super(props, auditFields, id);
     this.name = this.props.name;
+    this.roles = this.props.roles;
   }
 
   get name(): string {
@@ -25,6 +31,14 @@ export class Team extends Entity<TeamProps> {
 
   private set name(value: string) {
     this.props.name = value;
+  }
+
+  get roles(): TeamRole[] {
+    return this.props.roles;
+  }
+
+  private set roles(value: TeamRole[]) {
+    this.props.roles = value;
   }
 
   static validate(props: TeamProps) {

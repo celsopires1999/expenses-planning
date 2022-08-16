@@ -1,4 +1,4 @@
-import { TeamProps as TeamMemberProps } from "../entities/team";
+import { TeamProps as TeamMemberProps } from "../../../team/domain/entities/team";
 import {
   TeamMemberValidatorFactory,
   TeamMemberRules,

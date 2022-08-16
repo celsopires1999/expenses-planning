@@ -97,7 +97,10 @@ describe("AuditFields Unit Tests", () => {
         props: { created_by: "user", created_at: "fake" as any },
         message: {
           created_at: ["created_at must be a Date instance"],
-          updated_at: ["updated_at must be a Date instance"],
+          updated_at: [
+            "updated_at must be a Date instance",
+            "updated_at cannot be older than created_at",
+          ],
         },
       },
       {
@@ -123,7 +126,10 @@ describe("AuditFields Unit Tests", () => {
           updated_at: true as any,
         },
         message: {
-          updated_at: ["updated_at must be a Date instance"],
+          updated_at: [
+            "updated_at must be a Date instance",
+            "updated_at cannot be older than created_at",
+          ],
         },
       },
       {
@@ -135,7 +141,7 @@ describe("AuditFields Unit Tests", () => {
           updated_at: new Date(created_at.getTime() - 100),
         },
         message: {
-          updated_at: ["updated_at is older than created_at"],
+          updated_at: ["updated_at cannot be older than created_at"],
         },
       },
     ];

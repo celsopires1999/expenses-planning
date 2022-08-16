@@ -208,7 +208,9 @@ describe("Expense Unit Test", () => {
       expect(Expense.validate).toHaveBeenCalledTimes(2);
       expect(entity.name).toBe("new name");
       expect(entity.updated_by).toBe("user2");
-      expect(entity.updated_at).not.toEqual(entity.created_at);
+      expect(entity.updated_at.getTime()).toBeGreaterThanOrEqual(
+        entity.created_at.getTime()
+      );
 
       entity.change({ description: "new description" }, "user3");
       expect(Expense.validate).toHaveBeenCalledTimes(3);

@@ -1,4 +1,7 @@
-import { TeamMember, TeamMemberProps } from "./team-member";
+import {
+  TeamMember,
+  TeamMemberProps,
+} from "../../../team-member/domain/entities/team-member";
 
 describe("TeamMember Integration Tests", () => {
   describe("validations with errors", () => {
@@ -72,7 +75,7 @@ describe("TeamMember Integration Tests", () => {
     });
   });
   describe("successfull operations", () => {
-    describe("should create a supplier", () => {
+    describe("should create a team member", () => {
       const arrange: TeamMemberProps[] = [{ name: "some name" }];
 
       test.each(arrange)("%#) when props are %o ", (i) => {

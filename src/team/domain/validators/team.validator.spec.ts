@@ -1,4 +1,7 @@
 import { TeamProps } from "../entities/team";
+import { TeamMemberId } from "../entities/team-member-id.vo";
+import { TeamRole } from "../entities/team-role";
+import { RoleName } from "./team-role.validator";
 import TeamValidatorFactory, {
   TeamRules,
   TeamValidator,
@@ -44,9 +47,64 @@ describe("TeamValidator Tests", () => {
     });
   });
 
+  describe("invalidation cases for roles field", () => {
+    const arrange = [
+      {
+        data: { name: "some team", roles: null as any },
+        message: { roles: ["roles should not be empty", "roles are invalid"] },
+      },
+      {
+        data: { name: "some team", roles: [new Date()] },
+        message: {
+          roles: [
+            "each value in roles must be an instance of TeamRole",
+            "roles are invalid",
+          ],
+        },
+      },
+    ];
+
+    test.each(arrange)("Test Case: #%#", (i) => {
+      expect({ validator, data: i.data }).containsErrorMessages(i.message);
+    });
+  });
+
   describe("valid cases for fields", () => {
-    const arrange: TeamProps[] = [{ name: "some name" }];
-    test.each(arrange)("%#) when props are %o", (item) => {
+    const arrange: TeamProps[] = [
+      {
+        name: "some name",
+        roles: [
+          new TeamRole(
+            {
+              name: RoleName.MANAGER,
+              team_member_id: new TeamMemberId(
+                "25a68560-05cb-4608-91b3-0c9e9daf0bb9"
+              ),
+            },
+            { created_by: "user" }
+          ),
+          new TeamRole(
+            {
+              name: RoleName.ANALYST,
+              team_member_id: new TeamMemberId(
+                "25a68560-05cb-4608-91b3-0c9e9daf0bb9"
+              ),
+            },
+            { created_by: "user" }
+          ),
+          new TeamRole(
+            {
+              name: RoleName.DEPUTY,
+              team_member_id: new TeamMemberId(
+                "25a68560-05cb-4608-91b3-0c9e9daf0bb9"
+              ),
+            },
+            { created_by: "user" }
+          ),
+        ],
+      },
+    ];
+    test.each(arrange)("Test Case: #%#", (item) => {
       expect(validator.validate(item)).toBeTruthy();
       expect(validator.validatedData).toStrictEqual(new TeamRules(item));
       expect(validator.errors).toBeNull;

@@ -1,7 +1,14 @@
-import { IsDate, IsNotEmpty, IsString, MaxLength } from "class-validator";
+import {
+  IsDate,
+  IsNotEmpty,
+  IsString,
+  MaxLength,
+  registerDecorator,
+  ValidationArguments,
+  ValidationOptions,
+} from "class-validator";
 import { AuditFieldsValidationError } from "../../errors/validation.error";
 import { ClassValidatorFields } from "../../validators/class-validator-fields";
-import { FieldsError } from "./../../validators/validator-fields-interface";
 import { ValueObject } from "./value-object";
 
 export interface AuditFieldsProps {
@@ -29,13 +36,6 @@ export class AuditFields extends ValueObject<AuditFieldsProps> {
     if (!isValid) {
       throw new AuditFieldsValidationError(validator.errors);
     }
-
-    if (props.created_at > props.updated_at) {
-      const errors: FieldsError = {
-        ["updated_at"]: ["updated_at is older than created_at"],
-      };
-      throw new AuditFieldsValidationError(errors);
-    }
   }
 }
 
@@ -56,11 +56,41 @@ class AuditFieldsRules {
 
   @IsDate()
   @IsNotEmpty()
+  @IsNotOlderThan("created_at", {
+    message: "updated_at cannot be older than created_at",
+  })
   updated_at: Date;
 
   constructor(data: any) {
     Object.assign(this, data);
   }
+}
+
+export function IsNotOlderThan(
+  property: string,
+  validationOptions?: ValidationOptions
+) {
+  return function (object: Object, propertyName: string) {
+    registerDecorator({
+      name: "isNotOlderThan",
+      target: object.constructor,
+      propertyName: propertyName,
+      constraints: [property],
+      options: validationOptions,
+      validator: {
+        validate(value: any, args: ValidationArguments) {
+          const [relatedPropertyName] = args.constraints;
+          const relatedValue = (args.object as any)[relatedPropertyName];
+
+          return (
+            value instanceof Date &&
+            relatedValue instanceof Date &&
+            value >= relatedValue
+          );
+        },
+      },
+    });
+  };
 }
 
 class AuditFieldsValidator extends ClassValidatorFields<AuditFieldsRules> {

@@ -5,6 +5,7 @@ import { AuditFields } from "../../../@seedwork/domain/entity/value-objects/audi
 
 const testProps = {
   name: "initial name",
+  roles: null as any,
 };
 
 describe("Team Unit Test", () => {
@@ -41,9 +42,11 @@ describe("Team Unit Test", () => {
     expect(entity.created_at).toBeInstanceOf(Date);
     expect(entity.props).toStrictEqual({
       name: testProps.name,
+      roles: null,
     });
     expect(entity.props).toMatchObject({
       name: testProps.name,
+      roles: null,
     });
   });
 
