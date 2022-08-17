@@ -53,12 +53,28 @@ export abstract class Entity<Props = any> {
     });
   }
 
-  toJSON(): Required<{ id: string; auditFields: string } & Props> {
+  toJSON(): Required<
+    {
+      id: string;
+      created_by: string;
+      created_at: Date;
+      update_by: string;
+      updated_at: Date;
+    } & Props
+  > {
     return {
       id: this.id,
-      auditFields: this.auditFields.toString(),
+      ...this.auditFields.value,
       ...this.props,
-    } as Required<{ id: string; auditFields: string } & Props>;
+    } as Required<
+      {
+        id: string;
+        created_by: string;
+        created_at: Date;
+        update_by: string;
+        updated_at: Date;
+      } & Props
+    >;
   }
 }
 

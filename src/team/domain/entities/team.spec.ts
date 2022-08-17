@@ -12,7 +12,7 @@ describe("Team Unit Test", () => {
   beforeEach(() => {
     Team.validate = jest.fn();
   });
-  test("constructor of category with all props", () => {
+  test("constructor of entity with all props", () => {
     let props: TeamProps = {
       ...testProps,
     };

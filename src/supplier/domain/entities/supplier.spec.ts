@@ -11,7 +11,7 @@ describe("Supplier Unit Test", () => {
   beforeEach(() => {
     Supplier.validate = jest.fn();
   });
-  test("constructor of category with all props", () => {
+  test("constructor of entity with all props", () => {
     let props: SupplierProps = {
       ...testProps,
     };

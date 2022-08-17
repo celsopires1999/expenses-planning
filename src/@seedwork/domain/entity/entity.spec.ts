@@ -97,7 +97,7 @@ describe("Entity Unit Tests", () => {
     const auditFields = new AuditFields(auditFieldsProps);
     expect(entity.toJSON()).toStrictEqual({
       id: uniqueEntityId.value,
-      auditFields: auditFields.toString(),
+      ...auditFields.value,
       ...arrange,
     });
   });
