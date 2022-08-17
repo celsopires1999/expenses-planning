@@ -1,12 +1,8 @@
-import Entity from "./../../../@seedwork/domain/entity/entity";
 import { omit } from "lodash";
 import { validate as uuidValidate } from "uuid";
-import {
-  AuditFields,
-  AuditFieldsProps,
-} from "../../../@seedwork/domain/entity/value-objects/audit-fields.vo";
+import { AuditFields } from "../../../@seedwork/domain/value-objects/audit-fields.vo";
 import { ExpenseType } from "../validators/expense.validator";
-import { UniqueEntityId } from "./../../../@seedwork/domain/entity/value-objects/unique-entity-id.vo";
+import { UniqueEntityId } from "../../../@seedwork/domain/value-objects/unique-entity-id.vo";
 import { Expense, ExpenseProps } from "./expense";
 import { InvalidExpenseError } from "../errors/expense.error";
 import SupplierId from "./supplier-id.vo";

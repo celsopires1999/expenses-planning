@@ -1,7 +1,10 @@
-import { Entity } from "./entity";
+import { Entity } from "#seedwork/domain/entity/entity";
 import { validate as uuidValidate } from "uuid";
-import { UniqueEntityId } from "./value-objects/unique-entity-id.vo";
-import { AuditFields, AuditFieldsProps } from "./value-objects/audit-fields.vo";
+import { UniqueEntityId } from "#seedwork/domain/value-objects/unique-entity-id.vo";
+import {
+  AuditFields,
+  AuditFieldsProps,
+} from "#seedwork/domain/value-objects/audit-fields.vo";
 
 describe("Entity Unit Tests", () => {
   interface StubEntityProps {

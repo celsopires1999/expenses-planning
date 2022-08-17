@@ -1,3 +1,6 @@
+import { AuditFieldsValidationError } from "#seedwork/domain/errors/validation.error";
+import { ClassValidatorFields } from "#seedwork/domain/validators/class-validator-fields";
+import { ValueObject } from "#seedwork/domain/value-objects/value-object";
 import {
   IsDate,
   IsNotEmpty,
@@ -7,9 +10,6 @@ import {
   ValidationArguments,
   ValidationOptions,
 } from "class-validator";
-import { AuditFieldsValidationError } from "../../errors/validation.error";
-import { ClassValidatorFields } from "../../validators/class-validator-fields";
-import { ValueObject } from "./value-object";
 
 export interface AuditFieldsProps {
   created_by: string;

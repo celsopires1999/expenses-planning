@@ -1,4 +1,4 @@
-import { FieldsError } from "../validators/validator-fields-interface";
+import { FieldsError } from "#seedwork/domain/validators/validator-fields-interface";
 
 export class ValidationError extends Error {
   constructor(message: string) {

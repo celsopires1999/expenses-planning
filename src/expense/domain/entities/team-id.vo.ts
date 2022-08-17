@@ -1,6 +1,6 @@
 import { validate as uuidValidate } from "uuid";
 import { InvalidUuidError } from "../../../@seedwork/domain/errors/invalid-uuid.error";
-import ValueObject from "../../../@seedwork/domain/entity/value-objects/value-object";
+import ValueObject from "../../../@seedwork/domain/value-objects/value-object";
 
 export class TeamId extends ValueObject<string> {
   constructor(id: string) {

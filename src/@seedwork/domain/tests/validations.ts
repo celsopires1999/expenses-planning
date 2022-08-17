@@ -1,7 +1,7 @@
 import { expect } from "expect";
-import { FieldsError } from "../validators/validator-fields-interface";
-import { EntityValidationError } from "./../errors/validation.error";
-import { ClassValidatorFields } from "./../validators/class-validator-fields";
+import { FieldsError } from "#seedwork/domain/validators/validator-fields-interface";
+import { EntityValidationError } from "#seedwork/domain/errors/validation.error";
+import { ClassValidatorFields } from "#seedwork/domain/validators/class-validator-fields";
 
 type Received =
   | { validator: ClassValidatorFields<any>; data: any }

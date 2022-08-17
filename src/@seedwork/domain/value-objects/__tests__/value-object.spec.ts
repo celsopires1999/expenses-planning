@@ -1,4 +1,4 @@
-import { ValueObject } from "./../value-object";
+import { ValueObject } from "#seedwork/domain/value-objects/value-object";
 
 describe("ValueObject Unit Tests", () => {
   it("should set a value", () => {

@@ -1,6 +1,6 @@
-import { TeamMemberProps } from "../../../team-member/domain/entities/team-member";
+import { ClassValidatorFields } from "#seedwork/domain/validators/class-validator-fields";
+import { TeamMemberProps } from "#team-member/domain/entities/team-member";
 import { IsNotEmpty, IsString, MaxLength } from "class-validator";
-import { ClassValidatorFields } from "../../../@seedwork/domain/validators/class-validator-fields";
 
 export class TeamMemberRules {
   @MaxLength(255)

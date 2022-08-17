@@ -1,11 +1,11 @@
-import { AuditFieldsProps } from "../../../@seedwork/domain/entity/value-objects/audit-fields.vo";
+import { AuditFieldsProps } from "../../../@seedwork/domain/value-objects/audit-fields.vo";
 import { InvalidExpenseError } from "../errors/expense.error";
 import {
   ExpenseType,
   ExpenseValidatorFactory,
 } from "../validators/expense.validator";
 import { Entity } from "./../../../@seedwork/domain/entity/entity";
-import { UniqueEntityId } from "./../../../@seedwork/domain/entity/value-objects/unique-entity-id.vo";
+import { UniqueEntityId } from "../../../@seedwork/domain/value-objects/unique-entity-id.vo";
 import { EntityValidationError } from "./../../../@seedwork/domain/errors/validation.error";
 import { SupplierId } from "./supplier-id.vo";
 import { TeamId } from "./team-id.vo";

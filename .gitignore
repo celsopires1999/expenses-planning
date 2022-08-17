@@ -1,6 +1,6 @@
 .history/
 .docker/zsh/history/.zsh_history
 node_modules
-dist
+dist/
 __coverage
 

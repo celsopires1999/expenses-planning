@@ -1,9 +1,9 @@
-import { TeamProps as TeamMemberProps } from "../../../team/domain/entities/team";
+import { TeamMemberProps } from "#team-member/domain/entities/team-member";
 import {
   TeamMemberValidatorFactory,
   TeamMemberRules,
   TeamMemberValidator,
-} from "./team-member.validator";
+} from "#team-member/domain/validators/team-member.validator";
 
 describe("TeamValidator Tests", () => {
   let validator: TeamMemberValidator;

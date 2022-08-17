@@ -1,10 +1,10 @@
 import {
   TeamMember,
   TeamMemberProps,
-} from "../../../team-member/domain/entities/team-member";
+} from "#team-member/domain/entities/team-member";
 import { validate as uuidValidate } from "uuid";
-import { UniqueEntityId } from "../../../@seedwork/domain/entity/value-objects/unique-entity-id.vo";
-import { AuditFields } from "../../../@seedwork/domain/entity/value-objects/audit-fields.vo";
+import { UniqueEntityId } from "#seedwork/domain/value-objects/unique-entity-id.vo";
+import { AuditFields } from "#seedwork/domain/value-objects/audit-fields.vo";
 
 const testProps = {
   name: "initial name",

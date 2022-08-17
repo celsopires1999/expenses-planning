@@ -1,4 +1,4 @@
-import { deepFreeze } from "./object";
+import { deepFreeze } from "#seedwork/domain/utils/object";
 
 describe("Object Unit Tests", () => {
   it("should not freeze a scalar value", () => {

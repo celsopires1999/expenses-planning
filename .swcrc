@@ -4,6 +4,10 @@
       "syntax": "typescript",
       "decorators": true
     },
-    "baseUrl": "./src"
+    "baseUrl": "./src",
+    "paths": {
+      "#seedwork/*": ["./@seedwork/*"],
+      "#team-member/*": ["./team-member/*"]
+    }
   }
 }

@@ -1,5 +1,5 @@
 import * as libClassValidator from "class-validator";
-import ClassValidatorFields from "./../class-validator-fields";
+import ClassValidatorFields from "#seedwork/domain/validators/class-validator-fields";
 class StubClassValidatorFields extends ClassValidatorFields<{
   field: string;
 }> {}
@@ -14,6 +14,7 @@ describe("ClassVlidatorFields Unit Tests", () => {
   it("should validate with errors", () => {
     const spyValidatedSync = jest.spyOn(libClassValidator, "validateSync");
     spyValidatedSync.mockReturnValue([
+      //@ts-expect-error Testing
       {
         property: "field",
         constraints: { isRequired: "some error" },

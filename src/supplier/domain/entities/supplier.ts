@@ -1,7 +1,7 @@
-import { AuditFieldsProps } from "../../../@seedwork/domain/entity/value-objects/audit-fields.vo";
+import { AuditFieldsProps } from "../../../@seedwork/domain/value-objects/audit-fields.vo";
 import { SupplierValidatorFactory } from "../validators/supplier.validator";
 import { Entity } from "../../../@seedwork/domain/entity/entity";
-import { UniqueEntityId } from "../../../@seedwork/domain/entity/value-objects/unique-entity-id.vo";
+import { UniqueEntityId } from "../../../@seedwork/domain/value-objects/unique-entity-id.vo";
 import { EntityValidationError } from "../../../@seedwork/domain/errors/validation.error";
 
 export interface SupplierProps {

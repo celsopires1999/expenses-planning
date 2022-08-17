@@ -1,8 +1,8 @@
-import { Entity } from "../../../@seedwork/domain/entity/entity";
-import { AuditFieldsProps } from "../../../@seedwork/domain/entity/value-objects/audit-fields.vo";
-import { UniqueEntityId } from "../../../@seedwork/domain/entity/value-objects/unique-entity-id.vo";
-import { EntityValidationError } from "../../../@seedwork/domain/errors/validation.error";
-import { TeamMemberValidatorFactory } from "../validators/team-member.validator";
+import { Entity } from "#seedwork/domain/entity/entity";
+import { EntityValidationError } from "#seedwork/domain/errors/validation.error";
+import { AuditFieldsProps } from "#seedwork/domain/value-objects/audit-fields.vo";
+import { UniqueEntityId } from "#seedwork/domain/value-objects/unique-entity-id.vo";
+import { TeamMemberValidatorFactory } from "#team-member/domain/validators/team-member.validator";
 
 export interface TeamMemberProps {
   name: string;

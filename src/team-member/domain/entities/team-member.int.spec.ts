@@ -1,7 +1,7 @@
 import {
   TeamMember,
   TeamMemberProps,
-} from "../../../team-member/domain/entities/team-member";
+} from "#team-member/domain/entities/team-member";
 
 describe("TeamMember Integration Tests", () => {
   describe("validations with errors", () => {

@@ -1,5 +1,8 @@
-import { AuditFields, AuditFieldsProps } from "./value-objects/audit-fields.vo";
-import { UniqueEntityId } from "./value-objects/unique-entity-id.vo";
+import {
+  AuditFields,
+  AuditFieldsProps,
+} from "#seedwork/domain/value-objects/audit-fields.vo";
+import { UniqueEntityId } from "#seedwork/domain/value-objects/unique-entity-id.vo";
 
 export abstract class Entity<Props = any> {
   public readonly uniqueEntityId: UniqueEntityId;

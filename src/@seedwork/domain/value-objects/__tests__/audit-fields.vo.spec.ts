@@ -1,4 +1,7 @@
-import { AuditFields, AuditFieldsProps } from "../audit-fields.vo";
+import {
+  AuditFields,
+  AuditFieldsProps,
+} from "#seedwork/domain/value-objects/audit-fields.vo";
 
 describe("AuditFields Unit Tests", () => {
   let validateSpy: any;
