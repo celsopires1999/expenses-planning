@@ -3,46 +3,6 @@
   "version": "1.0.0",
   "description": "expense planning",
   "main": "index.js",
-  "imports": {
-    "#seedwork/application": "./dist/@seedwork/application/index.js",
-    "#seedwork/domain": "./dist/@seedwork/domain/index.js",
-    "#seedwork/infra": "./dist/@seedwork/infra/index.js",
-    "#seedwork/*": "./dist/@seedwork/*.js",
-    "#team-member/application": "./dist/@team-member/application/index.js",
-    "#team-member/domain": "./dist/@team-member/domain/index.js",
-    "#team-member/infra": "./dist/@team-member/infra/index.js",
-    "#team-member/*": "./dist/@team-member/*.js"
-  },
-  "exports": {
-    "./@seedwork/application": "./dist/@seedwork/application/index.js",
-    "./@seedwork/domain": "./dist/@seedwork/domain/index.js",
-    "./@seedwork/infra": "./dist/@seedwork/infra/index.js",
-    "./team-member/application": "./dist/team-member/application/index.js",
-    "./team-member/domain": "./dist/team-member/domain/index.js",
-    "./team-member/infra": "./dist/team-member/infra/index.js"
-  },
-  "typesVersions": {
-    ">=4.0": {
-      "@seedwork/application": [
-        "./dist/@seedwork/application/index.d.ts"
-      ],
-      "@seedwork/domain": [
-        "./dist/@seedwork/domain/index.d.ts"
-      ],
-      "@seedwork/infra": [
-        "./dist/@seedwork/infra/index.d.ts"
-      ],
-      "team-member/application": [
-        "./dist/team-member/application/index.d.ts"
-      ],
-      "team-member/domain": [
-        "./dist/team-member/domain/index.d.ts"
-      ],
-      "team-member/infra": [
-        "./dist/team-member/infra/index.d.ts"
-      ]
-    }
-  },
   "scripts": {
     "tsc": "tsc",
     "tsc:check": "npm run tsc -- --noEmit",

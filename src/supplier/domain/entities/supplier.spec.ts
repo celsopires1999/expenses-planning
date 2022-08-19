@@ -1,4 +1,5 @@
-import { Supplier, SupplierProps } from "./supplier";
+// import { Supplier, SupplierProps } from "./supplier";
+import { Supplier, SupplierProps } from "#supplier/domain/entities/supplier";
 import { validate as uuidValidate } from "uuid";
 import { UniqueEntityId } from "../../../@seedwork/domain/value-objects/unique-entity-id.vo";
 import { AuditFields } from "../../../@seedwork/domain/value-objects/audit-fields.vo";

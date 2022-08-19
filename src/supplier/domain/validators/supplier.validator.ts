@@ -1,6 +1,6 @@
-import { SupplierProps } from "../entities/supplier";
+import { SupplierProps } from "#supplier/domain/entities/supplier";
 import { IsNotEmpty, IsString, MaxLength } from "class-validator";
-import { ClassValidatorFields } from "../../../@seedwork/domain/validators/class-validator-fields";
+import { ClassValidatorFields } from "#seedwork/domain/validators/class-validator-fields";
 
 export class SupplierRules {
   @MaxLength(255)

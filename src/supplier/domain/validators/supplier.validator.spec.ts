@@ -1,8 +1,8 @@
-import { SupplierProps } from "../entities/supplier";
+import { SupplierProps } from "#supplier/domain/entities/supplier";
 import SupplierValidatorFactory, {
   SupplierRules,
   SupplierValidator,
-} from "./supplier.validator";
+} from "#supplier/domain/validators/supplier.validator";
 
 describe("SupplierValidator Tests", () => {
   let validator: SupplierValidator;

@@ -1,4 +1,4 @@
-import { Supplier, SupplierProps } from "./supplier";
+import { Supplier, SupplierProps } from "#supplier/domain/entities/supplier";
 
 describe("Supplier Integration Tests", () => {
   describe("validations with errors", () => {
