@@ -5,9 +5,9 @@ import {
   IsNotEmptyObject,
   IsOptional,
 } from "class-validator";
-import { ClassValidatorFields } from "../../../@seedwork/domain/validators/class-validator-fields";
-import { TeamRoleProps } from "../../../team/domain/entities/team-role";
-import { TeamMemberId } from "../entities/team-member-id.vo";
+import { ClassValidatorFields } from "#seedwork/domain/validators/class-validator-fields";
+import { TeamRoleProps } from "#team/domain/entities/team-role";
+import { TeamMemberId } from "#team/domain/entities/team-member-id.vo";
 
 export enum RoleName {
   MANAGER = "manager",

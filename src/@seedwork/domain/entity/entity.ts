@@ -53,29 +53,37 @@ export abstract class Entity<Props = any> {
     });
   }
 
-  toJSON(): Required<
-    {
-      id: string;
-      created_by: string;
-      created_at: Date;
-      update_by: string;
-      updated_at: Date;
-    } & Props
-  > {
+  toJSON(): any {
     return {
       id: this.id,
       ...this.auditFields.value,
       ...this.props,
-    } as Required<
-      {
-        id: string;
-        created_by: string;
-        created_at: Date;
-        update_by: string;
-        updated_at: Date;
-      } & Props
-    >;
+    };
   }
+
+  // toJSON(): Required<
+  //   {
+  //     id: string;
+  //     created_by: string;
+  //     created_at: Date;
+  //     updated_by: string;
+  //     updated_at: Date;
+  //   } & Props
+  // > {
+  //   return {
+  //     id: this.id,
+  //     ...this.auditFields.value,
+  //     ...this.props,
+  //   } as Required<
+  //     {
+  //       id: string;
+  //       created_by: string;
+  //       created_at: Date;
+  //       updated_by: string;
+  //       updated_at: Date;
+  //     } & Props
+  //   >;
+  // }
 }
 
 export default Entity;

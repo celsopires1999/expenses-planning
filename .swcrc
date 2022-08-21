@@ -8,7 +8,8 @@
     "paths": {
       "#seedwork/*": ["./@seedwork/*"],
       "#team-member/*": ["./team-member/*"],
-      "#supplier/*": ["./supplier/*"]
+      "#supplier/*": ["./supplier/*"],
+      "#team/*": ["./team/*"]
     }
   }
 }

@@ -1,11 +1,11 @@
-import TeamMemberId from "../entities/team-member-id.vo";
-import { TeamRoleProps } from "./../../domain/entities/team-role";
+import TeamMemberId from "#team/domain/entities/team-member-id.vo";
+import { TeamRoleProps } from "#team/domain/entities/team-role";
 import {
   RoleName,
   TeamRoleRules,
   TeamRoleValidator,
   TeamRoleValidatorFactory,
-} from "./team-role.validator";
+} from "#team/domain/validators/team-role.validator";
 
 describe("TeamRoleValidator Tests", () => {
   let validator: TeamRoleValidator;

@@ -1,7 +1,7 @@
-import { Team, TeamProps } from "./team";
+import { Team, TeamProps } from "#team/domain/entities/team";
 import { validate as uuidValidate } from "uuid";
-import { UniqueEntityId } from "../../../@seedwork/domain/value-objects/unique-entity-id.vo";
-import { AuditFields } from "../../../@seedwork/domain/value-objects/audit-fields.vo";
+import { UniqueEntityId } from "#seedwork/domain/value-objects/unique-entity-id.vo";
+import { AuditFields } from "#seedwork/domain/value-objects/audit-fields.vo";
 
 const testProps = {
   name: "initial name",

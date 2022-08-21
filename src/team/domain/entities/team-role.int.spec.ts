@@ -1,6 +1,6 @@
-import { RoleName } from "../validators/team-role.validator";
-import { TeamMemberId } from "./team-member-id.vo";
-import { TeamRole, TeamRoleProps } from "./team-role";
+import { RoleName } from "#team/domain/validators/team-role.validator";
+import { TeamMemberId } from "#team/domain/entities/team-member-id.vo";
+import { TeamRole, TeamRoleProps } from "#team/domain/entities/team-role";
 
 describe("TeamRole Integration Tests", () => {
   describe("validations with errors", () => {

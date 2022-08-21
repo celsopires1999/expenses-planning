@@ -6,10 +6,10 @@ import {
   registerDecorator,
   ValidationOptions,
 } from "class-validator";
-import { ClassValidatorFields } from "../../../@seedwork/domain/validators/class-validator-fields";
-import { TeamProps } from "../entities/team";
-import { TeamRole } from "../entities/team-role";
-import { RoleName } from "./team-role.validator";
+import { ClassValidatorFields } from "#seedwork/domain/validators/class-validator-fields";
+import { TeamProps } from "#team/domain/entities/team";
+import { TeamRole } from "#team/domain/entities/team-role";
+import { RoleName } from "#team/domain/validators/team-role.validator";
 
 export class TeamRules {
   @MaxLength(255)
