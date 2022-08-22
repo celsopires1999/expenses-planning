@@ -338,8 +338,12 @@ describe("TeamSequelizeRepository Integration Tests", () => {
         new Date()
       );
 
-      const models = await TeamModel.findAll({
+      const retrievedModels = await TeamModel.findAll({
         include: [{ model: TeamRoleModel }],
+      });
+
+      const models = entitiesProps.map((i) => {
+        return retrievedModels.find((model) => model.name === i.name);
       });
 
       let searchOutputActual = await repository.search(
@@ -417,8 +421,12 @@ describe("TeamSequelizeRepository Integration Tests", () => {
         new Date()
       );
 
-      const models = await TeamModel.findAll({
+      const retrievedModels = await TeamModel.findAll({
         include: [{ model: TeamRoleModel }],
+      });
+
+      const models = entitiesProps.map((i) => {
+        return retrievedModels.find((model) => model.name === i.name);
       });
 
       const items = models.map((model) => TeamModelMapper.toEntity(model));
@@ -523,8 +531,12 @@ describe("TeamSequelizeRepository Integration Tests", () => {
         "system",
         new Date()
       );
-      const models = await TeamModel.findAll({
+      const retrievedModels = await TeamModel.findAll({
         include: [{ model: TeamRoleModel }],
+      });
+
+      const models = entitiesProps.map((i) => {
+        return retrievedModels.find((model) => model.name === i.name);
       });
 
       const arrange = [
@@ -579,17 +591,21 @@ describe("TeamSequelizeRepository Integration Tests", () => {
   });
 });
 
-//TODO: should not use other repository
 async function createPersistenteTeamMember(): Promise<TeamMember> {
-  const teamMemberRep = new TeamMemberSequelize.TeamMemberRepository(
-    TeamMemberModel
-  );
-
   const teamMember = new TeamMember(
     { name: "some name" },
     { created_by: "system" }
   );
-  await teamMemberRep.insert(teamMember);
+
+  await TeamMemberModel.create({
+    id: teamMember.id,
+    name: teamMember.name,
+    created_by: teamMember.created_by,
+    created_at: teamMember.created_at,
+    updated_by: teamMember.updated_by,
+    updated_at: teamMember.updated_at,
+  });
+
   return teamMember;
 }
 
