@@ -4,7 +4,7 @@ import { setupSequelize } from "#seedwork/infra/testing/helpers/db";
 import { TeamMember } from "#team-member/domain/entities/team-member";
 import { TeamMemberSequelize } from "#team-member/infra/db/sequelize/team-member-sequelize";
 import { Team } from "#team/domain/entities/team";
-import TeamMemberId from "#team/domain/entities/team-member-id.vo";
+import { TeamMemberId } from "#team/domain/entities/team-member-id.vo";
 import { TeamRole } from "#team/domain/entities/team-role";
 import { TeamRepository } from "#team/domain/repository/team-repository";
 import { RoleName } from "#team/domain/validators/team-role.validator";
@@ -13,69 +13,19 @@ import _chance from "chance";
 
 const chance = _chance();
 
-// const { TeamModelMapper } = TeamSequelize;
-const { TeamModel, TeamRoleModel } = TeamSequelize;
+const { TeamModel, TeamRoleModel, TeamModelMapper } = TeamSequelize;
 const { TeamMemberModel } = TeamMemberSequelize;
 
-describe("TeamSequelizeRepository Integration Tests", () => {
-  setupSequelize({
-    models: [TeamModel, TeamRoleModel, TeamMemberModel],
-    logging: true,
-  });
+setupSequelize({
+  models: [TeamModel, TeamRoleModel, TeamMemberModel],
+});
 
+describe("TeamSequelizeRepository Integration Tests", () => {
   let repository: TeamSequelize.TeamRepository;
 
   beforeEach(async () => {
     repository = new TeamSequelize.TeamRepository(TeamModel);
   });
-
-  async function createTeamMember(): Promise<TeamMember> {
-    const teamMemberRep = new TeamMemberSequelize.TeamMemberRepository(
-      TeamMemberModel
-    );
-
-    const teamMember = new TeamMember(
-      { name: "some name" },
-      { created_by: "system" }
-    );
-    await teamMemberRep.insert(teamMember);
-    return teamMember;
-  }
-
-  async function createTeam(options?: {
-    teamName?: string;
-    createdAt?: Date;
-  }): Promise<Team> {
-    const teamMember = await createTeamMember();
-    const team_member_id = new TeamMemberId(teamMember.id);
-    const roles = [
-      new TeamRole(
-        {
-          name: RoleName.MANAGER,
-          team_member_id,
-        },
-        { created_by: "user" }
-      ),
-      new TeamRole(
-        {
-          name: RoleName.ANALYST,
-          team_member_id,
-        },
-        { created_by: "user" }
-      ),
-      new TeamRole(
-        {
-          name: RoleName.DEPUTY,
-          team_member_id,
-        },
-        { created_by: "user" }
-      ),
-    ];
-    const name = options?.teamName ? options.teamName : "new entity";
-    const created_at = options?.createdAt ? options.createdAt : null;
-
-    return new Team({ name, roles }, { created_by: "system", created_at });
-  }
 
   it("should insert a new entity", async () => {
     const entity = await createTeam();
@@ -224,358 +174,499 @@ describe("TeamSequelizeRepository Integration Tests", () => {
     expect(result.items).toHaveLength(1);
   });
 
-  // describe("search method", () => {
-  //   it("should only apply paginate when other params are null ", async () => {
-  //     const created_at = new Date();
-  //     const models = await TeamModel.factory()
-  //       .count(16)
-  //       .bulkCreate(() => {
-  //         const teamId = chance.guid({ version: 4 });
-  //         const date = chance.date();
-  //         return {
-  //           id: chance.guid({ version: 4 }),
-  //           name: "some name",
-  //           created_by: "system",
-  //           created_at: created_at,
-  //           updated_by: "system",
-  //           updated_at: created_at,
-  //           roles: Object.values(RoleName).map((name) => {
-  //             return {
-  //               id: chance.guid({ version: 4 }),
-  //               name,
-  //               team_member_id: chance.guid({ version: 4 }),
-  //               team_id: teamId,
-  //               created_by: chance.word(),
-  //               created_at: date,
-  //               updated_by: chance.word(),
-  //               updated_at: date,
-  //             };
-  //           }),
-  //         };
-  //       });
+  describe("search method", () => {
+    it("should only apply paginate when other params are null ", async () => {
+      const date = new Date();
+      let teamModelsWithoutRoles: TeamSequelize.TeamModel[];
+      try {
+        teamModelsWithoutRoles = await TeamModel.factory()
+          .count(16)
+          .bulkCreate(() => ({
+            id: chance.guid({ version: 4 }),
+            name: "some name",
+            created_by: "system",
+            created_at: date,
+            updated_by: "system",
+            updated_at: date,
+          }));
+      } catch (e) {
+        console.log(e);
+        throw e;
+      }
 
-  //     const spyToEntity = jest.spyOn(TeamModelMapper, "toEntity");
-  //     const selectedModels = models.slice(0, 15);
-  //     const entities = selectedModels.map(
-  //       (i) =>
-  //         new Team(
-  //           {
-  //             name: i.name,
-  //           },
-  //           {
-  //             created_by: "system",
-  //             created_at: i.created_at,
-  //             updated_by: "system",
-  //             updated_at: i.created_at,
-  //           },
-  //           new UniqueEntityId(i.id)
-  //         )
-  //     );
+      await addTeamRoleModels(
+        teamModelsWithoutRoles,
+        "be1aec07-666c-4e8d-946e-0aedf1908f80",
+        "system",
+        date,
+        "system",
+        date
+      );
 
-  //     const result = await repository.search(new TeamRepository.SearchParams());
+      const models = await TeamModel.findAll({
+        include: [{ model: TeamRoleModel }],
+      });
 
-  //     expect(result).toBeInstanceOf(TeamRepository.SearchResult);
-  //     expect(spyToEntity).toHaveBeenCalledTimes(15);
-  //     expect(result.toJSON()).toMatchObject({
-  //       total: 16,
-  //       current_page: 1,
-  //       last_page: 2,
-  //       per_page: 15,
-  //       sort: null,
-  //       sort_dir: null,
-  //       filter: null,
-  //     });
+      const spyToEntity = jest.spyOn(TeamModelMapper, "toEntity");
+      const selectedModels = models.slice(0, 15);
+      const entities = selectedModels.map(
+        (i) =>
+          new Team(
+            {
+              name: i.name,
+              roles: i.roles.map(
+                (role) =>
+                  new TeamRole(
+                    {
+                      name: role.name,
+                      team_member_id: new TeamMemberId(role.team_member_id),
+                    },
+                    {
+                      created_by: role.created_by,
+                      created_at: role.created_at,
+                      updated_by: role.updated_by,
+                      updated_at: role.updated_at,
+                    },
+                    new UniqueEntityId(role.id)
+                  )
+              ),
+            },
+            {
+              created_by: i.created_by,
+              created_at: i.created_at,
+              updated_by: i.updated_by,
+              updated_at: i.updated_at,
+            },
+            new UniqueEntityId(i.id)
+          )
+      );
 
-  //     result.items.forEach((item) => {
-  //       expect(item).toBeInstanceOf(Team);
-  //       expect(item.id).toBeDefined();
-  //       expect(item.toJSON()).toMatchObject({
-  //         name: "some name",
-  //         created_by: "system",
-  //         created_at: created_at,
-  //         updated_by: "system",
-  //         updated_at: created_at,
-  //       });
-  //     });
+      const result = await repository.search(new TeamRepository.SearchParams());
 
-  //     expect(JSON.stringify(result)).toStrictEqual(
-  //       JSON.stringify(
-  //         new TeamRepository.SearchResult({
-  //           items: entities,
-  //           total: 16,
-  //           current_page: 1,
-  //           per_page: 15,
-  //           sort: null,
-  //           sort_dir: null,
-  //           filter: null,
-  //         })
-  //       )
-  //     );
-  //   });
+      expect(result).toBeInstanceOf(TeamRepository.SearchResult);
+      expect(spyToEntity).toHaveBeenCalledTimes(15);
+      expect(result.toJSON()).toMatchObject({
+        total: 16,
+        current_page: 1,
+        last_page: 2,
+        per_page: 15,
+        sort: null,
+        sort_dir: null,
+        filter: null,
+      });
 
-  //   it("should order by created_at DESC when search params are null", async () => {
-  //     const created_at = new Date();
-  //     await TeamModel.factory()
-  //       .count(16)
-  //       .bulkCreate((index: number) => ({
-  //         id: chance.guid({ version: 4 }),
-  //         name: `Entity${index}`,
-  //         created_by: "system",
-  //         created_at: new Date(created_at.getTime() + 100 * index),
-  //         updated_by: "system",
-  //         updated_at: new Date(created_at.getTime() + 100 * index),
-  //       }));
+      result.items.forEach((item) => {
+        expect(item).toBeInstanceOf(Team);
+        expect(item.id).toBeDefined();
+        expect(item.toJSON()).toMatchObject({
+          name: "some name",
+          created_by: "system",
+          created_at: date,
+          updated_by: "system",
+          updated_at: date,
+        });
+      });
 
-  //     const searchOutputActual = await repository.search(
-  //       new TeamRepository.SearchParams()
-  //     );
+      expect(JSON.stringify(result)).toStrictEqual(
+        JSON.stringify(
+          new TeamRepository.SearchResult({
+            items: entities,
+            total: 16,
+            current_page: 1,
+            per_page: 15,
+            sort: null,
+            sort_dir: null,
+            filter: null,
+          })
+        )
+      );
+    });
 
-  //     [...searchOutputActual.items].reverse().forEach((i, index) => {
-  //       expect(i.name).toBe(`Entity${index + 1}`);
-  //     });
-  //   });
+    it("should order by created_at DESC when search params are null", async () => {
+      const created_at = new Date();
+      const teamModelsWithoutRoles = await TeamModel.factory()
+        .count(16)
+        .bulkCreate((index: number) => ({
+          id: chance.guid({ version: 4 }),
+          name: `Entity${index}`,
+          created_by: "system",
+          created_at: new Date(created_at.getTime() + 100 * index),
+          updated_by: "system",
+          updated_at: new Date(created_at.getTime() + 100 * index),
+        }));
 
-  //   it("should apply paginate and filter", async () => {
-  //     const defaultProps = {
-  //       created_by: "system",
-  //       created_at: new Date(),
-  //       updated_by: "system",
-  //       updated_at: new Date(),
-  //     };
+      await addTeamRoleModels(
+        teamModelsWithoutRoles,
+        "be1aec07-666c-4e8d-946e-0aedf1908f80",
+        "system",
+        new Date(),
+        "system",
+        new Date()
+      );
 
-  //     const entitiesProps = [
-  //       { id: chance.guid({ version: 4 }), name: "test", ...defaultProps },
-  //       { id: chance.guid({ version: 4 }), name: "a", ...defaultProps },
-  //       { id: chance.guid({ version: 4 }), name: "TEST", ...defaultProps },
-  //       { id: chance.guid({ version: 4 }), name: "TeST", ...defaultProps },
-  //     ];
+      const searchOutputActual = await repository.search(
+        new TeamRepository.SearchParams()
+      );
 
-  //     const entities = await TeamModel.bulkCreate(entitiesProps);
+      [...searchOutputActual.items].reverse().forEach((i, index) => {
+        expect(i.name).toBe(`Entity${index + 1}`);
+      });
+    });
 
-  //     let searchOutputActual = await repository.search(
-  //       new TeamRepository.SearchParams({
-  //         filter: "TEST",
-  //         page: 1,
-  //         per_page: 2,
-  //       })
-  //     );
+    it("should apply paginate and filter", async () => {
+      const defaultProps = {
+        created_by: "system",
+        created_at: new Date(),
+        updated_by: "system",
+        updated_at: new Date(),
+      };
 
-  //     let searchOutputExpected = new TeamRepository.SearchResult({
-  //       items: [
-  //         TeamModelMapper.toEntity(entities[0]),
-  //         TeamModelMapper.toEntity(entities[2]),
-  //       ],
-  //       total: 3,
-  //       current_page: 1,
-  //       per_page: 2,
-  //       sort: null,
-  //       sort_dir: null,
-  //       filter: "TEST",
-  //     });
+      const entitiesProps = [
+        { id: chance.guid({ version: 4 }), name: "test", ...defaultProps },
+        { id: chance.guid({ version: 4 }), name: "a", ...defaultProps },
+        { id: chance.guid({ version: 4 }), name: "TEST", ...defaultProps },
+        { id: chance.guid({ version: 4 }), name: "TeST", ...defaultProps },
+      ];
 
-  //     expect(searchOutputActual.toJSON()).toMatchObject(
-  //       searchOutputExpected.toJSON()
-  //     );
+      const teamModelsWithoutRoles = await TeamModel.bulkCreate(entitiesProps);
+      await addTeamRoleModels(
+        teamModelsWithoutRoles,
+        "be1aec07-666c-4e8d-946e-0aedf1908f80",
+        "system",
+        new Date(),
+        "system",
+        new Date()
+      );
 
-  //     searchOutputActual = await repository.search(
-  //       new TeamRepository.SearchParams({
-  //         filter: "TEST",
-  //         page: 2,
-  //         per_page: 2,
-  //       })
-  //     );
+      const models = await TeamModel.findAll({
+        include: [{ model: TeamRoleModel }],
+      });
 
-  //     searchOutputExpected = new TeamRepository.SearchResult({
-  //       items: [TeamModelMapper.toEntity(entities[3])],
-  //       total: 3,
-  //       current_page: 2,
-  //       per_page: 2,
-  //       sort: null,
-  //       sort_dir: null,
-  //       filter: "TEST",
-  //     });
+      let searchOutputActual = await repository.search(
+        new TeamRepository.SearchParams({
+          filter: "TEST",
+          page: 1,
+          per_page: 2,
+        })
+      );
 
-  //     expect(searchOutputActual.toJSON()).toMatchObject(
-  //       searchOutputExpected.toJSON()
-  //     );
-  //   });
+      let searchOutputExpected = new TeamRepository.SearchResult({
+        items: [
+          TeamModelMapper.toEntity(models[0]),
+          TeamModelMapper.toEntity(models[2]),
+        ],
+        total: 3,
+        current_page: 1,
+        per_page: 2,
+        sort: null,
+        sort_dir: null,
+        filter: "TEST",
+      });
 
-  //   it("should apply paginate and sort", async () => {
-  //     expect(repository.sortableFields).toStrictEqual(["name", "created_at"]);
-  //     const defaultProps = {
-  //       created_by: "system",
-  //       created_at: new Date(),
-  //       updated_by: "system",
-  //       updated_at: new Date(),
-  //     };
+      expect(searchOutputActual.toJSON()).toMatchObject(
+        searchOutputExpected.toJSON()
+      );
 
-  //     const entitiesProps = [
-  //       { id: chance.guid({ version: 4 }), name: "b", ...defaultProps },
-  //       { id: chance.guid({ version: 4 }), name: "a", ...defaultProps },
-  //       { id: chance.guid({ version: 4 }), name: "d", ...defaultProps },
-  //       { id: chance.guid({ version: 4 }), name: "e", ...defaultProps },
-  //       { id: chance.guid({ version: 4 }), name: "c", ...defaultProps },
-  //     ];
+      searchOutputActual = await repository.search(
+        new TeamRepository.SearchParams({
+          filter: "TEST",
+          page: 2,
+          per_page: 2,
+        })
+      );
 
-  //     const models = await TeamModel.bulkCreate(entitiesProps);
-  //     const items = models.map((model) => TeamModelMapper.toEntity(model));
+      searchOutputExpected = new TeamRepository.SearchResult({
+        items: [TeamModelMapper.toEntity(models[3])],
+        total: 3,
+        current_page: 2,
+        per_page: 2,
+        sort: null,
+        sort_dir: null,
+        filter: "TEST",
+      });
 
-  //     const arrange = [
-  //       {
-  //         params: new TeamRepository.SearchParams({
-  //           page: 1,
-  //           per_page: 2,
-  //           sort: "name",
-  //         }),
-  //         result: new TeamRepository.SearchResult({
-  //           items: [items[1], items[0]],
-  //           total: 5,
-  //           current_page: 1,
-  //           per_page: 2,
-  //           sort: "name",
-  //           sort_dir: "asc",
-  //           filter: null,
-  //         }),
-  //       },
-  //       {
-  //         params: new TeamRepository.SearchParams({
-  //           page: 2,
-  //           per_page: 2,
-  //           sort: "name",
-  //         }),
-  //         result: new TeamRepository.SearchResult({
-  //           items: [items[4], items[2]],
-  //           total: 5,
-  //           current_page: 2,
-  //           per_page: 2,
-  //           sort: "name",
-  //           sort_dir: "asc",
-  //           filter: null,
-  //         }),
-  //       },
-  //       {
-  //         params: new TeamRepository.SearchParams({
-  //           page: 1,
-  //           per_page: 2,
-  //           sort: "name",
-  //           sort_dir: "desc",
-  //         }),
-  //         result: new TeamRepository.SearchResult({
-  //           items: [items[3], items[2]],
-  //           total: 5,
-  //           current_page: 1,
-  //           per_page: 2,
-  //           sort: "name",
-  //           sort_dir: "desc",
-  //           filter: null,
-  //         }),
-  //       },
-  //       {
-  //         params: new TeamRepository.SearchParams({
-  //           page: 2,
-  //           per_page: 2,
-  //           sort: "name",
-  //           sort_dir: "desc",
-  //         }),
-  //         result: new TeamRepository.SearchResult({
-  //           items: [items[4], items[0]],
-  //           total: 5,
-  //           current_page: 2,
-  //           per_page: 2,
-  //           sort: "name",
-  //           sort_dir: "desc",
-  //           filter: null,
-  //         }),
-  //       },
-  //     ];
+      expect(searchOutputActual.toJSON()).toMatchObject(
+        searchOutputExpected.toJSON()
+      );
+    });
 
-  //     for (const i of arrange) {
-  //       let result = await repository.search(i.params);
-  //       expect(result.toJSON()).toMatchObject(i.result.toJSON());
-  //     }
-  //   });
+    it("should apply paginate and sort", async () => {
+      expect(repository.sortableFields).toStrictEqual(["name", "created_at"]);
+      const defaultProps = {
+        created_by: "system",
+        created_at: new Date(),
+        updated_by: "system",
+        updated_at: new Date(),
+      };
 
-  //   // describe("should search using filter, sort and paginate", () => {
-  //   //   const defaultProps = {
-  //   //     created_by: "system",
-  //   //     created_at: new Date(),
-  //   //     updated_by: "system",
-  //   //     updated_at: new Date(),
-  //   //   };
+      const entitiesProps = [
+        { id: chance.guid({ version: 4 }), name: "b", ...defaultProps },
+        { id: chance.guid({ version: 4 }), name: "a", ...defaultProps },
+        { id: chance.guid({ version: 4 }), name: "d", ...defaultProps },
+        { id: chance.guid({ version: 4 }), name: "e", ...defaultProps },
+        { id: chance.guid({ version: 4 }), name: "c", ...defaultProps },
+      ];
 
-  //   //   const entitiesProps = [
-  //   //     { id: chance.guid({ version: 4 }), name: "test", ...defaultProps }, // 0
-  //   //     { id: chance.guid({ version: 4 }), name: "a", ...defaultProps }, // 1
-  //   //     { id: chance.guid({ version: 4 }), name: "TEST", ...defaultProps }, // 2
-  //   //     { id: chance.guid({ version: 4 }), name: "e", ...defaultProps }, // 3
-  //   //     { id: chance.guid({ version: 4 }), name: "TeSt", ...defaultProps }, // 4
-  //   //   ];
+      const teamModelsWithoutRoles = await TeamModel.bulkCreate(entitiesProps);
+      await addTeamRoleModels(
+        teamModelsWithoutRoles,
+        "be1aec07-666c-4e8d-946e-0aedf1908f80",
+        "system",
+        new Date(),
+        "system",
+        new Date()
+      );
 
-  //   //   beforeEach(async () => {
-  //   //     await TeamModel.bulkCreate(entitiesProps);
-  //   //   });
+      const models = await TeamModel.findAll({
+        include: [{ model: TeamRoleModel }],
+      });
 
-  //   //   const arrange = [
-  //   //     {
-  //   //       search_params: new TeamRepository.SearchParams({
-  //   //         page: 1,
-  //   //         per_page: 2,
-  //   //         sort: "name",
-  //   //         sort_dir: "asc",
-  //   //         filter: "TEST",
-  //   //       }),
+      const items = models.map((model) => TeamModelMapper.toEntity(model));
 
-  //   //       search_result: new TeamRepository.SearchResult({
-  //   //         items: [toEntity(entitiesProps[2]), toEntity(entitiesProps[4])],
-  //   //         total: 3,
-  //   //         current_page: 1,
-  //   //         per_page: 2,
-  //   //         sort: "name",
-  //   //         sort_dir: "asc",
-  //   //         filter: "TEST",
-  //   //       }),
-  //   //     },
-  //   //     {
-  //   //       search_params: new TeamRepository.SearchParams({
-  //   //         page: 2,
-  //   //         per_page: 2,
-  //   //         sort: "name",
-  //   //         sort_dir: "asc",
-  //   //         filter: "TEST",
-  //   //       }),
-  //   //       search_result: new TeamRepository.SearchResult({
-  //   //         items: [toEntity(entitiesProps[0])],
+      const arrange = [
+        {
+          params: new TeamRepository.SearchParams({
+            page: 1,
+            per_page: 2,
+            sort: "name",
+          }),
+          result: new TeamRepository.SearchResult({
+            items: [items[1], items[0]],
+            total: 5,
+            current_page: 1,
+            per_page: 2,
+            sort: "name",
+            sort_dir: "asc",
+            filter: null,
+          }),
+        },
+        {
+          params: new TeamRepository.SearchParams({
+            page: 2,
+            per_page: 2,
+            sort: "name",
+          }),
+          result: new TeamRepository.SearchResult({
+            items: [items[4], items[2]],
+            total: 5,
+            current_page: 2,
+            per_page: 2,
+            sort: "name",
+            sort_dir: "asc",
+            filter: null,
+          }),
+        },
+        {
+          params: new TeamRepository.SearchParams({
+            page: 1,
+            per_page: 2,
+            sort: "name",
+            sort_dir: "desc",
+          }),
+          result: new TeamRepository.SearchResult({
+            items: [items[3], items[2]],
+            total: 5,
+            current_page: 1,
+            per_page: 2,
+            sort: "name",
+            sort_dir: "desc",
+            filter: null,
+          }),
+        },
+        {
+          params: new TeamRepository.SearchParams({
+            page: 2,
+            per_page: 2,
+            sort: "name",
+            sort_dir: "desc",
+          }),
+          result: new TeamRepository.SearchResult({
+            items: [items[4], items[0]],
+            total: 5,
+            current_page: 2,
+            per_page: 2,
+            sort: "name",
+            sort_dir: "desc",
+            filter: null,
+          }),
+        },
+      ];
 
-  //   //         total: 3,
-  //   //         current_page: 2,
-  //   //         per_page: 2,
-  //   //         sort: "name",
-  //   //         sort_dir: "asc",
-  //   //         filter: "TEST",
-  //   //       }),
-  //   //     },
-  //   //   ];
+      for (const i of arrange) {
+        let result = await repository.search(i.params);
+        expect(result.toJSON()).toMatchObject(i.result.toJSON());
+      }
+    });
 
-  //   //   function toEntity(entityProps: any): Team {
-  //   //     return new Team(
-  //   //       { name: entityProps.name },
-  //   //       {
-  //   //         created_by: entityProps.created_by,
-  //   //         created_at: entityProps.created_at,
-  //   //         updated_by: entityProps.updated_by,
-  //   //         updated_at: entityProps.updated_at,
-  //   //       },
-  //   //       new UniqueEntityId(entityProps.id)
-  //   //     );
-  //   //   }
+    it("should search using filter, sort and paginate", async () => {
+      const defaultProps = {
+        created_by: "system",
+        created_at: new Date(),
+        updated_by: "system",
+        updated_at: new Date(),
+      };
 
-  //   //   test.each(arrange)(
-  //   //     "when search_params is $search_params",
-  //   //     async ({ search_params, search_result }) => {
-  //   //       const result = await repository.search(search_params);
-  //   //       expect(result.toJSON()).toMatchObject(search_result.toJSON());
-  //   //     }
-  //   //   );
-  //   // });
-  // });
+      const entitiesProps = [
+        { id: chance.guid({ version: 4 }), name: "test", ...defaultProps }, // 0
+        { id: chance.guid({ version: 4 }), name: "a", ...defaultProps }, // 1
+        { id: chance.guid({ version: 4 }), name: "TEST", ...defaultProps }, // 2
+        { id: chance.guid({ version: 4 }), name: "e", ...defaultProps }, // 3
+        { id: chance.guid({ version: 4 }), name: "TeSt", ...defaultProps }, // 4
+      ];
+
+      const teamModelsWithoutRoles = await TeamModel.bulkCreate(entitiesProps);
+      await addTeamRoleModels(
+        teamModelsWithoutRoles,
+        "be1aec07-666c-4e8d-946e-0aedf1908f80",
+        "system",
+        new Date(),
+        "system",
+        new Date()
+      );
+      const models = await TeamModel.findAll({
+        include: [{ model: TeamRoleModel }],
+      });
+
+      const arrange = [
+        {
+          search_params: new TeamRepository.SearchParams({
+            page: 1,
+            per_page: 2,
+            sort: "name",
+            sort_dir: "asc",
+            filter: "TEST",
+          }),
+
+          search_result: new TeamRepository.SearchResult({
+            items: [
+              TeamModelMapper.toEntity(models[2]),
+              TeamModelMapper.toEntity(models[4]),
+            ],
+            total: 3,
+            current_page: 1,
+            per_page: 2,
+            sort: "name",
+            sort_dir: "asc",
+            filter: "TEST",
+          }),
+        },
+        {
+          search_params: new TeamRepository.SearchParams({
+            page: 2,
+            per_page: 2,
+            sort: "name",
+            sort_dir: "asc",
+            filter: "TEST",
+          }),
+          search_result: new TeamRepository.SearchResult({
+            items: [TeamModelMapper.toEntity(models[0])],
+
+            total: 3,
+            current_page: 2,
+            per_page: 2,
+            sort: "name",
+            sort_dir: "asc",
+            filter: "TEST",
+          }),
+        },
+      ];
+
+      for (const i of arrange) {
+        const result = await repository.search(i.search_params);
+        expect(result.toJSON()).toMatchObject(i.search_result.toJSON());
+      }
+    });
+  });
 });
+
+//TODO: should not use other repository
+async function createPersistenteTeamMember(): Promise<TeamMember> {
+  const teamMemberRep = new TeamMemberSequelize.TeamMemberRepository(
+    TeamMemberModel
+  );
+
+  const teamMember = new TeamMember(
+    { name: "some name" },
+    { created_by: "system" }
+  );
+  await teamMemberRep.insert(teamMember);
+  return teamMember;
+}
+
+async function createTeam(options?: {
+  teamName?: string;
+  createdAt?: Date;
+}): Promise<Team> {
+  const teamMember = await createPersistenteTeamMember();
+  const team_member_id = new TeamMemberId(teamMember.id);
+  const roles = [
+    new TeamRole(
+      {
+        name: RoleName.MANAGER,
+        team_member_id,
+      },
+      { created_by: "user" }
+    ),
+    new TeamRole(
+      {
+        name: RoleName.ANALYST,
+        team_member_id,
+      },
+      { created_by: "user" }
+    ),
+    new TeamRole(
+      {
+        name: RoleName.DEPUTY,
+        team_member_id,
+      },
+      { created_by: "user" }
+    ),
+  ];
+  const name = options?.teamName ? options.teamName : "new entity";
+  const created_at = options?.createdAt ? options.createdAt : null;
+
+  return new Team({ name, roles }, { created_by: "system", created_at });
+}
+
+async function addTeamRoleModels(
+  teamModels: TeamSequelize.TeamModel[],
+  team_member_id: string,
+  created_by: string,
+  created_at: Date,
+  updated_by: string,
+  updated_at: Date
+): Promise<void> {
+  try {
+    await TeamMemberModel.factory().create({
+      id: team_member_id,
+      name: "senior analyst",
+      created_by,
+      created_at,
+      updated_by,
+      updated_at,
+    });
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+
+  try {
+    for (const team of teamModels) {
+      for (const roleName of Object.values(RoleName)) {
+        await TeamRoleModel.factory().create({
+          id: chance.guid({ version: 4 }),
+          name: roleName,
+          team_member_id,
+          team_id: team.id,
+          created_by,
+          created_at,
+          updated_by,
+          updated_at,
+        });
+      }
+    }
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+}

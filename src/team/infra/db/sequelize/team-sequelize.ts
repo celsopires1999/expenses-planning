@@ -27,7 +27,7 @@ export namespace TeamSequelize {
   type TeamModelProps = {
     id: string;
     name: string;
-    roles: TeamRoleModelProps[];
+    roles?: TeamRoleModelProps[];
     created_by: string;
     created_at: Date;
     updated_by: string;
@@ -60,33 +60,16 @@ export namespace TeamSequelize {
 
     static factory() {
       const chance: Chance.Chance = require("chance")();
-
       return new SequelizeModelFactory<TeamModel, TeamModelProps>(
         TeamModel,
-        () => {
-          const teamId = chance.guid({ version: 4 });
-          const date = chance.date();
-          return {
-            id: teamId,
-            name: chance.word(),
-            created_by: chance.word(),
-            created_at: date,
-            updated_by: chance.word(),
-            updated_at: date,
-            roles: Object.values(RoleName).map((name) => {
-              return {
-                id: chance.guid({ version: 4 }),
-                name,
-                team_member_id: chance.guid({ version: 4 }),
-                team_id: teamId,
-                created_by: chance.word(),
-                created_at: date,
-                updated_by: chance.word(),
-                updated_at: date,
-              };
-            }),
-          };
-        }
+        () => ({
+          id: chance.guid({ version: 4 }),
+          name: chance.word(),
+          created_by: chance.word(),
+          created_at: chance.date(),
+          updated_by: chance.word(),
+          updated_at: chance.date(),
+        })
       );
     }
   }
@@ -137,20 +120,22 @@ export namespace TeamSequelize {
     @Column({ allowNull: false, type: DataType.DATE })
     declare updated_at: Date;
 
-    // static factory() {
-    //   const chance: Chance.Chance = require("chance")();
-    //   return new SequelizeModelFactory<TeamModel, TeamModelProps>(
-    //     TeamModel,
-    //     () => ({
-    //       id: chance.guid({ version: 4 }),
-    //       name: chance.word(),
-    //       created_by: chance.word(),
-    //       created_at: chance.date(),
-    //       updated_by: chance.word(),
-    //       updated_at: chance.date(),
-    //     })
-    //   );
-    // }
+    static factory() {
+      const chance: Chance.Chance = require("chance")();
+      return new SequelizeModelFactory<TeamRoleModel, TeamRoleModelProps>(
+        TeamRoleModel,
+        () => ({
+          id: chance.guid({ version: 4 }),
+          name: RoleName.ANALYST,
+          team_member_id: chance.guid({ version: 4 }),
+          team_id: chance.guid({ version: 4 }),
+          created_by: chance.word(),
+          created_at: chance.date(),
+          updated_by: chance.word(),
+          updated_at: chance.date(),
+        })
+      );
+    }
   }
 
   export class TeamRepository implements TeamRepositoryContract.Repository {
@@ -172,7 +157,18 @@ export namespace TeamSequelize {
       const offset = (props.page - 1) * props.per_page;
       const limit = props.per_page;
 
-      const { rows: models, count } = await this.teamModel.findAndCountAll({
+      const { count } = await this.teamModel.findAndCountAll({
+        ...(props.filter && {
+          where: { name: { [Op.like]: `%${props.filter}%` } },
+        }),
+        ...(props.sort && this.sortableFields.includes(props.sort)
+          ? { order: [[props.sort, props.sort_dir]] }
+          : { order: [["created_at", "DESC"]] }),
+        offset,
+        limit,
+      });
+
+      const { rows: models } = await this.teamModel.findAndCountAll({
         ...(props.filter && {
           where: { name: { [Op.like]: `%${props.filter}%` } },
         }),
@@ -183,6 +179,7 @@ export namespace TeamSequelize {
         limit,
         include: [TeamRoleModel],
       });
+
       return new TeamRepositoryContract.SearchResult({
         items: models.map((m) => TeamModelMapper.toEntity(m)),
         current_page: props.page,
