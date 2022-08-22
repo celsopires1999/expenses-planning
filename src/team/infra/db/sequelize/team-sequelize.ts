@@ -9,7 +9,7 @@ import { TeamMemberId } from "#team/domain/entities/team-member-id.vo";
 import { TeamRole } from "#team/domain/entities/team-role";
 import { TeamRepository as TeamRepositoryContract } from "#team/domain/repository/team-repository";
 import { RoleName } from "#team/domain/validators/team-role.validator";
-import { Op } from "sequelize";
+import { Op, col, fn } from "sequelize";
 import {
   BelongsTo,
   Column,
@@ -157,28 +157,26 @@ export namespace TeamSequelize {
       const offset = (props.page - 1) * props.per_page;
       const limit = props.per_page;
 
-      const { count } = await this.teamModel.findAndCountAll({
+      const count = await this.teamModel.count({
         ...(props.filter && {
           where: { name: { [Op.like]: `%${props.filter}%` } },
         }),
-        ...(props.sort && this.sortableFields.includes(props.sort)
-          ? { order: [[props.sort, props.sort_dir]] }
-          : { order: [["created_at", "DESC"]] }),
-        offset,
-        limit,
       });
 
-      const { rows: models } = await this.teamModel.findAndCountAll({
-        ...(props.filter && {
-          where: { name: { [Op.like]: `%${props.filter}%` } },
-        }),
-        ...(props.sort && this.sortableFields.includes(props.sort)
-          ? { order: [[props.sort, props.sort_dir]] }
-          : { order: [["created_at", "DESC"]] }),
-        offset,
-        limit,
-        include: [TeamRoleModel],
-      });
+      let models = [];
+      if (count !== 0) {
+        models = await this.teamModel.findAll({
+          ...(props.filter && {
+            where: { name: { [Op.like]: `%${props.filter}%` } },
+          }),
+          ...(props.sort && this.sortableFields.includes(props.sort)
+            ? { order: [[props.sort, props.sort_dir]] }
+            : { order: [["created_at", "DESC"]] }),
+          offset,
+          limit,
+          include: [TeamRoleModel],
+        });
+      }
 
       return new TeamRepositoryContract.SearchResult({
         items: models.map((m) => TeamModelMapper.toEntity(m)),
