@@ -52,15 +52,19 @@ describe("TeamValidator Tests", () => {
       {
         data: { name: "some team", roles: null as any },
         message: {
-          roles: ["roles should not be empty", "roles are invalid"],
+          roles: [
+            "roles are invalid",
+            "each value in roles must be an instance of TeamRole",
+            "roles should not be empty",
+          ],
         },
       },
       {
         data: { name: "some team", roles: [new Date()] },
         message: {
           roles: [
-            "each value in roles must be an instance of TeamRole",
             "roles are invalid",
+            "each value in roles must be an instance of TeamRole",
           ],
         },
       },

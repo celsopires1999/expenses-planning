@@ -27,7 +27,7 @@ export namespace TeamSequelize {
   type TeamModelProps = {
     id: string;
     name: string;
-    roles: TeamRoleModelProps[];
+    roles?: TeamRoleModelProps[];
     created_by: string;
     created_at: Date;
     updated_by: string;
@@ -60,33 +60,16 @@ export namespace TeamSequelize {
 
     static factory() {
       const chance: Chance.Chance = require("chance")();
-
       return new SequelizeModelFactory<TeamModel, TeamModelProps>(
         TeamModel,
-        () => {
-          const teamId = chance.guid({ version: 4 });
-          const date = chance.date();
-          return {
-            id: teamId,
-            name: chance.word(),
-            created_by: chance.word(),
-            created_at: date,
-            updated_by: chance.word(),
-            updated_at: date,
-            roles: Object.values(RoleName).map((name) => {
-              return {
-                id: chance.guid({ version: 4 }),
-                name,
-                team_member_id: chance.guid({ version: 4 }),
-                team_id: teamId,
-                created_by: chance.word(),
-                created_at: date,
-                updated_by: chance.word(),
-                updated_at: date,
-              };
-            }),
-          };
-        }
+        () => ({
+          id: chance.guid({ version: 4 }),
+          name: chance.word(),
+          created_by: chance.word(),
+          created_at: chance.date(),
+          updated_by: chance.word(),
+          updated_at: chance.date(),
+        })
       );
     }
   }
@@ -137,26 +120,31 @@ export namespace TeamSequelize {
     @Column({ allowNull: false, type: DataType.DATE })
     declare updated_at: Date;
 
-    // static factory() {
-    //   const chance: Chance.Chance = require("chance")();
-    //   return new SequelizeModelFactory<TeamModel, TeamModelProps>(
-    //     TeamModel,
-    //     () => ({
-    //       id: chance.guid({ version: 4 }),
-    //       name: chance.word(),
-    //       created_by: chance.word(),
-    //       created_at: chance.date(),
-    //       updated_by: chance.word(),
-    //       updated_at: chance.date(),
-    //     })
-    //   );
-    // }
+    static factory() {
+      const chance: Chance.Chance = require("chance")();
+      return new SequelizeModelFactory<TeamRoleModel, TeamRoleModelProps>(
+        TeamRoleModel,
+        () => ({
+          id: chance.guid({ version: 4 }),
+          name: RoleName.ANALYST,
+          team_member_id: chance.guid({ version: 4 }),
+          team_id: chance.guid({ version: 4 }),
+          created_by: chance.word(),
+          created_at: chance.date(),
+          updated_by: chance.word(),
+          updated_at: chance.date(),
+        })
+      );
+    }
   }
 
   export class TeamRepository implements TeamRepositoryContract.Repository {
     sortableFields: string[] = ["name", "created_at"];
 
-    constructor(private teamModel: typeof TeamModel) {}
+    constructor(
+      private teamModel: typeof TeamModel,
+      private teamRoleModel: typeof TeamRoleModel
+    ) {}
 
     async exists(name: string): Promise<boolean> {
       const model = await this.teamModel.findOne({
@@ -172,17 +160,27 @@ export namespace TeamSequelize {
       const offset = (props.page - 1) * props.per_page;
       const limit = props.per_page;
 
-      const { rows: models, count } = await this.teamModel.findAndCountAll({
+      const count = await this.teamModel.count({
         ...(props.filter && {
           where: { name: { [Op.like]: `%${props.filter}%` } },
         }),
-        ...(props.sort && this.sortableFields.includes(props.sort)
-          ? { order: [[props.sort, props.sort_dir]] }
-          : { order: [["created_at", "DESC"]] }),
-        offset,
-        limit,
-        include: [TeamRoleModel],
       });
+
+      let models = [];
+      if (count !== 0) {
+        models = await this.teamModel.findAll({
+          ...(props.filter && {
+            where: { name: { [Op.like]: `%${props.filter}%` } },
+          }),
+          ...(props.sort && this.sortableFields.includes(props.sort)
+            ? { order: [[props.sort, props.sort_dir]] }
+            : { order: [["created_at", "DESC"]] }),
+          offset,
+          limit,
+          include: [this.teamRoleModel],
+        });
+      }
+
       return new TeamRepositoryContract.SearchResult({
         items: models.map((m) => TeamModelMapper.toEntity(m)),
         current_page: props.page,
@@ -196,7 +194,7 @@ export namespace TeamSequelize {
 
     async insert(entity: Team): Promise<void> {
       await this.teamModel.create(entity.toJSON(), {
-        include: [{ model: TeamRoleModel }],
+        include: [{ model: this.teamRoleModel }],
       });
     }
 
@@ -204,25 +202,27 @@ export namespace TeamSequelize {
       const _id = `${id}`;
       const model = await this.teamModel.findByPk(_id, {
         rejectOnEmpty: new NotFoundError(`Entity not found using ID ${id}`),
-        include: [TeamRoleModel],
+        include: [this.teamRoleModel],
       });
 
       return TeamModelMapper.toEntity(model);
     }
 
     async findAll(): Promise<Team[]> {
-      const models = await this.teamModel.findAll({ include: [TeamRoleModel] });
+      const models = await this.teamModel.findAll({
+        include: [this.teamRoleModel],
+      });
       return models.map((m) => TeamModelMapper.toEntity(m));
     }
 
     async update(entity: Team): Promise<void> {
-      const sequelize = TeamModel.sequelize;
+      const sequelize = this.teamModel.sequelize;
 
       await this._get(entity.id);
 
       try {
         await sequelize.transaction(async (t) => {
-          await TeamRoleModel.destroy({
+          await this.teamRoleModel.destroy({
             where: { team_id: entity.id },
             transaction: t,
           });
@@ -238,8 +238,8 @@ export namespace TeamSequelize {
               updated_at: role.updated_at,
             };
           });
-          await TeamRoleModel.bulkCreate(roles, { transaction: t });
-          await TeamModel.update(entity.toJSON(), {
+          await this.teamRoleModel.bulkCreate(roles, { transaction: t });
+          await this.teamModel.update(entity.toJSON(), {
             where: { id: entity.id },
             transaction: t,
           });
@@ -251,18 +251,18 @@ export namespace TeamSequelize {
     }
 
     async delete(id: string | UniqueEntityId): Promise<void> {
-      const sequelize = TeamModel.sequelize;
+      const sequelize = this.teamModel.sequelize;
 
       const _id = `${id}`;
       await this._get(_id);
 
       try {
         await sequelize.transaction(async (t) => {
-          await TeamRoleModel.destroy({
+          await this.teamRoleModel.destroy({
             where: { team_id: _id },
             transaction: t,
           });
-          await TeamModel.destroy({
+          await this.teamModel.destroy({
             where: { id: _id },
             transaction: t,
           });
