@@ -101,8 +101,8 @@ describe("AuditFields Unit Tests", () => {
         message: {
           created_at: ["created_at must be a Date instance"],
           updated_at: [
-            "updated_at must be a Date instance",
             "updated_at cannot be older than created_at",
+            "updated_at must be a Date instance",
           ],
         },
       },
@@ -130,8 +130,8 @@ describe("AuditFields Unit Tests", () => {
         },
         message: {
           updated_at: [
-            "updated_at must be a Date instance",
             "updated_at cannot be older than created_at",
+            "updated_at must be a Date instance",
           ],
         },
       },
