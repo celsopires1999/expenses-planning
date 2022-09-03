@@ -24,7 +24,7 @@ describe("TeamSequelizeRepository Integration Tests", () => {
   let repository: TeamSequelize.TeamRepository;
 
   beforeEach(async () => {
-    repository = new TeamSequelize.TeamRepository(TeamModel);
+    repository = new TeamSequelize.TeamRepository(TeamModel, TeamRoleModel);
   });
 
   it("should insert a new entity", async () => {

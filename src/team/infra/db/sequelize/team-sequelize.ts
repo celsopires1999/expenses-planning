@@ -9,7 +9,7 @@ import { TeamMemberId } from "#team/domain/entities/team-member-id.vo";
 import { TeamRole } from "#team/domain/entities/team-role";
 import { TeamRepository as TeamRepositoryContract } from "#team/domain/repository/team-repository";
 import { RoleName } from "#team/domain/validators/team-role.validator";
-import { Op, col, fn } from "sequelize";
+import { Op } from "sequelize";
 import {
   BelongsTo,
   Column,
@@ -141,7 +141,10 @@ export namespace TeamSequelize {
   export class TeamRepository implements TeamRepositoryContract.Repository {
     sortableFields: string[] = ["name", "created_at"];
 
-    constructor(private teamModel: typeof TeamModel) {}
+    constructor(
+      private teamModel: typeof TeamModel,
+      private teamRoleModel: typeof TeamRoleModel
+    ) {}
 
     async exists(name: string): Promise<boolean> {
       const model = await this.teamModel.findOne({
@@ -174,7 +177,7 @@ export namespace TeamSequelize {
             : { order: [["created_at", "DESC"]] }),
           offset,
           limit,
-          include: [TeamRoleModel],
+          include: [this.teamRoleModel],
         });
       }
 
@@ -191,7 +194,7 @@ export namespace TeamSequelize {
 
     async insert(entity: Team): Promise<void> {
       await this.teamModel.create(entity.toJSON(), {
-        include: [{ model: TeamRoleModel }],
+        include: [{ model: this.teamRoleModel }],
       });
     }
 
@@ -199,25 +202,27 @@ export namespace TeamSequelize {
       const _id = `${id}`;
       const model = await this.teamModel.findByPk(_id, {
         rejectOnEmpty: new NotFoundError(`Entity not found using ID ${id}`),
-        include: [TeamRoleModel],
+        include: [this.teamRoleModel],
       });
 
       return TeamModelMapper.toEntity(model);
     }
 
     async findAll(): Promise<Team[]> {
-      const models = await this.teamModel.findAll({ include: [TeamRoleModel] });
+      const models = await this.teamModel.findAll({
+        include: [this.teamRoleModel],
+      });
       return models.map((m) => TeamModelMapper.toEntity(m));
     }
 
     async update(entity: Team): Promise<void> {
-      const sequelize = TeamModel.sequelize;
+      const sequelize = this.teamModel.sequelize;
 
       await this._get(entity.id);
 
       try {
         await sequelize.transaction(async (t) => {
-          await TeamRoleModel.destroy({
+          await this.teamRoleModel.destroy({
             where: { team_id: entity.id },
             transaction: t,
           });
@@ -233,8 +238,8 @@ export namespace TeamSequelize {
               updated_at: role.updated_at,
             };
           });
-          await TeamRoleModel.bulkCreate(roles, { transaction: t });
-          await TeamModel.update(entity.toJSON(), {
+          await this.teamRoleModel.bulkCreate(roles, { transaction: t });
+          await this.teamModel.update(entity.toJSON(), {
             where: { id: entity.id },
             transaction: t,
           });
@@ -246,18 +251,18 @@ export namespace TeamSequelize {
     }
 
     async delete(id: string | UniqueEntityId): Promise<void> {
-      const sequelize = TeamModel.sequelize;
+      const sequelize = this.teamModel.sequelize;
 
       const _id = `${id}`;
       await this._get(_id);
 
       try {
         await sequelize.transaction(async (t) => {
-          await TeamRoleModel.destroy({
+          await this.teamRoleModel.destroy({
             where: { team_id: _id },
             transaction: t,
           });
-          await TeamModel.destroy({
+          await this.teamModel.destroy({
             where: { id: _id },
             transaction: t,
           });
