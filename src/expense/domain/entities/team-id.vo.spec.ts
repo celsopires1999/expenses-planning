@@ -1,4 +1,4 @@
-import { InvalidUuidError } from "../../../@seedwork/domain/errors/invalid-uuid.error";
+import { InvalidUuidError } from "#seedwork/domain/errors/invalid-uuid.error";
 import TeamId from "./team-id.vo";
 
 describe("TeamId Unit Tests", () => {

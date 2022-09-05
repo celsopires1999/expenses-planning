@@ -8,6 +8,7 @@
     "outDir": "./dist" /* Specify an output folder for all emitted files. */,
     "paths": {
       "#seedwork/*": ["./@seedwork/*"],
+      "#expense/*": ["./expense/*"],
       "#team-member/*": ["./team-member/*"],
       "#supplier/*": ["./supplier/*"],
       "#team/*": ["./team/*"]

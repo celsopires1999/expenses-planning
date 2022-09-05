@@ -1,9 +1,9 @@
-import { InvalidExpenseError } from "../errors/expense.error";
-import { ExpenseType } from "../validators/expense.validator";
-import { EntityValidationError } from "./../../../@seedwork/domain/errors/validation.error";
-import { Expense, ExpenseProps } from "./expense";
-import { SupplierId } from "./supplier-id.vo";
-import { TeamId } from "./team-id.vo";
+import { InvalidExpenseError } from "#expense/domain/errors/expense.error";
+import { ExpenseType } from "#expense/domain/validators/expense.validator";
+import { EntityValidationError } from "#seedwork/domain/errors/validation.error";
+import { Expense, ExpenseProps } from "#expense/domain/entities/expense";
+import { SupplierId } from "#expense/domain/entities/supplier-id.vo";
+import { TeamId } from "#expense/domain/entities/team-id.vo";
 
 describe("Expense Integration Tests", () => {
   describe("validations with errors", () => {
