@@ -7,6 +7,7 @@
     "baseUrl": "./src",
     "paths": {
       "#seedwork/*": ["./@seedwork/*"],
+      "#expense/*": ["./expense/*"],
       "#team-member/*": ["./team-member/*"],
       "#supplier/*": ["./supplier/*"],
       "#team/*": ["./team/*"]

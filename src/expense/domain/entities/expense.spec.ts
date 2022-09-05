@@ -1,12 +1,12 @@
 import { omit } from "lodash";
 import { validate as uuidValidate } from "uuid";
-import { AuditFields } from "../../../@seedwork/domain/value-objects/audit-fields.vo";
-import { ExpenseType } from "../validators/expense.validator";
-import { UniqueEntityId } from "../../../@seedwork/domain/value-objects/unique-entity-id.vo";
-import { Expense, ExpenseProps } from "./expense";
-import { InvalidExpenseError } from "../errors/expense.error";
-import SupplierId from "./supplier-id.vo";
-import TeamId from "./team-id.vo";
+import { AuditFields } from "#seedwork/domain/value-objects/audit-fields.vo";
+import { ExpenseType } from "#expense/domain/validators/expense.validator";
+import { UniqueEntityId } from "#seedwork/domain/value-objects/unique-entity-id.vo";
+import { Expense, ExpenseProps } from "#expense/domain/entities/expense";
+import { InvalidExpenseError } from "#expense/domain/errors/expense.error";
+import { SupplierId } from "#expense/domain/entities/supplier-id.vo";
+import { TeamId } from "#expense/domain/entities/team-id.vo";
 
 const testProps: ExpenseProps = {
   name: "initial name",
