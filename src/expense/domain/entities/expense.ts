@@ -9,6 +9,7 @@ import { UniqueEntityId } from "#seedwork/domain/value-objects/unique-entity-id.
 import { EntityValidationError } from "#seedwork/domain/errors/validation.error";
 import { SupplierId } from "#expense/domain/entities/supplier-id.vo";
 import { TeamId } from "#expense/domain/entities/team-id.vo";
+import { BudgetId } from "#expense/domain/entities//budget-id.vo";
 
 export interface ExpenseProps {
   name: string;
@@ -20,6 +21,7 @@ export interface ExpenseProps {
   purchaseRequest?: string;
   purchaseOrder?: string;
   team_id: TeamId;
+  budget_id: BudgetId;
 }
 
 export class Expense extends Entity<ExpenseProps> {
@@ -39,6 +41,7 @@ export class Expense extends Entity<ExpenseProps> {
     this.purchaseRequest = this.props.purchaseRequest;
     this.purchaseOrder = this.props.purchaseOrder;
     this.team_id = this.props.team_id;
+    this.budget_id = this.props.budget_id;
   }
 
   change(
@@ -49,6 +52,7 @@ export class Expense extends Entity<ExpenseProps> {
       amount?: number;
       type?: ExpenseType;
       team_id?: TeamId;
+      budget_id?: BudgetId;
     },
     updated_by: string
   ): void {
@@ -60,6 +64,7 @@ export class Expense extends Entity<ExpenseProps> {
     _props.amount = props.amount ?? this.amount;
     _props.type = props.type ?? this.type;
     _props.team_id = props.team_id ?? this.team_id;
+    _props.budget_id = props.budget_id ?? this.budget_id;
 
     Expense.validate(_props);
 
@@ -69,6 +74,7 @@ export class Expense extends Entity<ExpenseProps> {
     this.amount = _props.amount;
     this.type = _props.type;
     this.team_id = _props.team_id;
+    this.budget_id = _props.budget_id;
 
     super.updateAuditFields(updated_by);
   }
@@ -234,6 +240,14 @@ export class Expense extends Entity<ExpenseProps> {
 
   private set team_id(value: TeamId) {
     this.props.team_id = value;
+  }
+
+  get budget_id(): BudgetId {
+    return this.props.budget_id;
+  }
+
+  private set budget_id(value: BudgetId) {
+    this.props.budget_id = value;
   }
 
   static validate(props: ExpenseProps) {

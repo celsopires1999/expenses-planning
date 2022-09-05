@@ -4,6 +4,7 @@ import { EntityValidationError } from "#seedwork/domain/errors/validation.error"
 import { Expense, ExpenseProps } from "#expense/domain/entities/expense";
 import { SupplierId } from "#expense/domain/entities/supplier-id.vo";
 import { TeamId } from "#expense/domain/entities/team-id.vo";
+import { BudgetId } from "#expense/domain/entities/budget-id.vo";
 
 describe("Expense Integration Tests", () => {
   describe("validations with errors", () => {
@@ -36,6 +37,11 @@ describe("Expense Integration Tests", () => {
           "team_id must be an instance of TeamId",
           "team_id should not be empty",
           "team_id must be a non-empty object",
+        ],
+        budget_id: [
+          "budget_id must be an instance of BudgetId",
+          "budget_id should not be empty",
+          "budget_id must be a non-empty object",
         ],
       });
     });
@@ -151,6 +157,7 @@ describe("Expense Integration Tests", () => {
         purchaseRequest: "1234567890",
         purchaseOrder: "0987654321",
         team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
+        budget_id: new BudgetId("ae21f4b3-ecac-4ad9-9496-d2da487c4044"),
       };
       entity = new Expense(props, { created_by: "user" });
     });
@@ -281,6 +288,7 @@ describe("Expense Integration Tests", () => {
       amount: 2500.55,
       type: ExpenseType.CAPEX,
       team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
+      budget_id: new BudgetId("ae21f4b3-ecac-4ad9-9496-d2da487c4044"),
     };
     const entity = new Expense(props, { created_by: "user" });
 
@@ -305,6 +313,7 @@ describe("Expense Integration Tests", () => {
       type: ExpenseType.CAPEX,
       supplier_id: new SupplierId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
       team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
+      budget_id: new BudgetId("ae21f4b3-ecac-4ad9-9496-d2da487c4044"),
     };
     const entity = new Expense(props, { created_by: "user" });
     expect(entity.supplier_id.value).toBe(
@@ -332,6 +341,7 @@ describe("Expense Integration Tests", () => {
       type: ExpenseType.CAPEX,
       supplier_id: new SupplierId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
       team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
+      budget_id: new BudgetId("ae21f4b3-ecac-4ad9-9496-d2da487c4044"),
     };
     const entity = new Expense(props, { created_by: "user" });
     entity.addPurchaseRequest("1234567890", "user1");
@@ -357,6 +367,7 @@ describe("Expense Integration Tests", () => {
       supplier_id: new SupplierId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
       purchaseRequest: "1234567890",
       team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
+      budget_id: new BudgetId("ae21f4b3-ecac-4ad9-9496-d2da487c4044"),
     };
     const entity = new Expense(props, { created_by: "user" });
     entity.updatePurchaseRequest("0987654321", "user1");
@@ -377,6 +388,7 @@ describe("Expense Integration Tests", () => {
       type: ExpenseType.CAPEX,
       supplier_id: new SupplierId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
       team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
+      budget_id: new BudgetId("ae21f4b3-ecac-4ad9-9496-d2da487c4044"),
     };
     const entity = new Expense(props, { created_by: "user" });
     entity.addPurchaseOrder("1234567890", "user1");
@@ -402,6 +414,7 @@ describe("Expense Integration Tests", () => {
       supplier_id: new SupplierId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
       purchaseOrder: "1234567890",
       team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
+      budget_id: new BudgetId("ae21f4b3-ecac-4ad9-9496-d2da487c4044"),
     };
     const entity = new Expense(props, { created_by: "user" });
     entity.updatePurchaseOrder("0987654321", "user1");
@@ -422,6 +435,7 @@ describe("Expense Integration Tests", () => {
       type: ExpenseType.CAPEX,
       supplier_id: new SupplierId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
       team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
+      budget_id: new BudgetId("ae21f4b3-ecac-4ad9-9496-d2da487c4044"),
     };
     const entity = new Expense(props, { created_by: "user" });
     entity.addPurchaseDocs("1234567890", "0987654321", "user1");
@@ -470,6 +484,7 @@ describe("Expense Integration Tests", () => {
           amount: 2000.55,
           type: ExpenseType.CAPEX,
           team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
+          budget_id: new BudgetId("ae21f4b3-ecac-4ad9-9496-d2da487c4044"),
         },
         {
           name: "some name",
@@ -479,6 +494,7 @@ describe("Expense Integration Tests", () => {
           type: ExpenseType.CAPEX,
           supplier_id: new SupplierId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
           team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
+          budget_id: new BudgetId("ae21f4b3-ecac-4ad9-9496-d2da487c4044"),
         },
         {
           name: "some name",
@@ -489,6 +505,7 @@ describe("Expense Integration Tests", () => {
           supplier_id: new SupplierId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
           purchaseRequest: "1234567890",
           team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
+          budget_id: new BudgetId("ae21f4b3-ecac-4ad9-9496-d2da487c4044"),
         },
         {
           name: "some name",
@@ -500,6 +517,7 @@ describe("Expense Integration Tests", () => {
           purchaseRequest: "1234567890",
           purchaseOrder: "9876543210",
           team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
+          budget_id: new BudgetId("ae21f4b3-ecac-4ad9-9496-d2da487c4044"),
         },
       ];
 
@@ -520,6 +538,7 @@ describe("Expense Integration Tests", () => {
         purchaseRequest: "1234567890",
         purchaseOrder: "0987654321",
         team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
+        budget_id: new BudgetId("ae21f4b3-ecac-4ad9-9496-d2da487c4044"),
       };
       const entity = new Expense(props, { created_by: "user" });
       expect(entity.toJSON()).toMatchObject(props);

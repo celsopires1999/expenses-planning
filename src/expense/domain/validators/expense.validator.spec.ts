@@ -1,11 +1,12 @@
-import { SupplierId } from "../entities/supplier-id.vo";
-import { TeamId } from "../entities/team-id.vo";
-import { ExpenseProps } from "./../entities/expense";
+import { BudgetId } from "#expense/domain/entities/budget-id.vo";
+import { ExpenseProps } from "#expense/domain/entities/expense";
+import { SupplierId } from "#expense/domain/entities/supplier-id.vo";
+import { TeamId } from "#expense/domain/entities/team-id.vo";
 import ExpenseValidatorFactory, {
   ExpenseRules,
   ExpenseType,
   ExpenseValidator,
-} from "./expense.validator";
+} from "#expense/domain/validators/expense.validator";
 
 describe("ExpenseValidator Tests", () => {
   let validator: ExpenseValidator;
@@ -382,53 +383,6 @@ describe("ExpenseValidator Tests", () => {
     });
   });
 
-  describe("valid cases for fields", () => {
-    const arrange: ExpenseProps[] = [
-      {
-        name: "some name",
-        description: "some description",
-        year: 2021,
-        amount: 100,
-        type: ExpenseType.OPEX,
-        team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
-      },
-      {
-        name: "some name",
-        description: "some description",
-        year: 2021,
-        amount: 100,
-        type: ExpenseType.OPEX,
-        supplier_id: new SupplierId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
-        team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
-      },
-      {
-        name: "some name",
-        description: "some description",
-        year: 2021,
-        amount: 100,
-        type: ExpenseType.OPEX,
-        supplier_id: new SupplierId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
-        purchaseRequest: "0123456789",
-        team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
-      },
-      {
-        name: "some name",
-        description: "some description",
-        year: 2021,
-        amount: 0.01,
-        type: ExpenseType.OPEX,
-        supplier_id: new SupplierId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
-        purchaseRequest: "0123456789",
-        purchaseOrder: "9876543210",
-        team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
-      },
-    ];
-    test.each(arrange)("Test Case: #%#", (item) => {
-      expect(validator.validate(item)).toBeTruthy();
-      expect(validator.validatedData).toStrictEqual(new ExpenseRules(item));
-      expect(validator.errors).toBeNull;
-    });
-  });
   describe("invalidation cases for team_id field", () => {
     const arrange = [
       {
@@ -475,6 +429,107 @@ describe("ExpenseValidator Tests", () => {
 
     test.each(arrange)("Test Case: #%# - team field", (i) => {
       expect({ validator, data: i.data }).containsErrorMessages(i.message);
+    });
+  });
+
+  describe("invalidation cases for budget_id field", () => {
+    const arrange = [
+      {
+        data: {
+          budget_id: null as any,
+        },
+        message: {
+          budget_id: [
+            "budget_id must be an instance of BudgetId",
+            "budget_id should not be empty",
+            "budget_id must be a non-empty object",
+          ],
+        },
+      },
+      {
+        data: {
+          budget_id: {},
+        },
+        message: {
+          budget_id: [
+            "budget_id must be an instance of BudgetId",
+            "budget_id must be a non-empty object",
+          ],
+        },
+      },
+      {
+        data: {
+          budget_id: new SupplierId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
+        },
+        message: {
+          budget_id: ["budget_id must be an instance of BudgetId"],
+        },
+      },
+      {
+        data: { budget_id: 5 as any },
+        message: {
+          budget_id: [
+            "budget_id must be an instance of BudgetId",
+            "budget_id must be a non-empty object",
+          ],
+        },
+      },
+    ];
+
+    test.each(arrange)("Test Case: #%# - team field", (i) => {
+      expect({ validator, data: i.data }).containsErrorMessages(i.message);
+    });
+  });
+
+  describe("valid cases for fields", () => {
+    const arrange: ExpenseProps[] = [
+      {
+        name: "some name",
+        description: "some description",
+        year: 2021,
+        amount: 100,
+        type: ExpenseType.OPEX,
+        team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
+        budget_id: new BudgetId("ae21f4b3-ecac-4ad9-9496-d2da487c4044"),
+      },
+      {
+        name: "some name",
+        description: "some description",
+        year: 2021,
+        amount: 100,
+        type: ExpenseType.OPEX,
+        supplier_id: new SupplierId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
+        team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
+        budget_id: new BudgetId("ae21f4b3-ecac-4ad9-9496-d2da487c4044"),
+      },
+      {
+        name: "some name",
+        description: "some description",
+        year: 2021,
+        amount: 100,
+        type: ExpenseType.OPEX,
+        supplier_id: new SupplierId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
+        purchaseRequest: "0123456789",
+        team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
+        budget_id: new BudgetId("ae21f4b3-ecac-4ad9-9496-d2da487c4044"),
+      },
+      {
+        name: "some name",
+        description: "some description",
+        year: 2021,
+        amount: 0.01,
+        type: ExpenseType.OPEX,
+        supplier_id: new SupplierId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
+        purchaseRequest: "0123456789",
+        purchaseOrder: "9876543210",
+        team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
+        budget_id: new BudgetId("ae21f4b3-ecac-4ad9-9496-d2da487c4044"),
+      },
+    ];
+    test.each(arrange)("Test Case: #%#", (item) => {
+      expect(validator.validate(item)).toBeTruthy();
+      expect(validator.validatedData).toStrictEqual(new ExpenseRules(item));
+      expect(validator.errors).toBeNull();
     });
   });
 });

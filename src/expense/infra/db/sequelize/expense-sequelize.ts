@@ -1,7 +1,9 @@
 import { Expense } from "#expense/domain/entities/expense";
 import { SupplierSequelize } from "#supplier/infra/db/sequelize/supplier-sequelize";
+import { BudgetSequelize } from "#budget/infra/db/sequelize/budget-sequelize";
 import { SupplierId } from "#expense/domain/entities/supplier-id.vo";
 import { TeamId } from "#expense/domain/entities/team-id.vo";
+import { BudgetId } from "#expense/domain/entities/budget-id.vo";
 import { ExpenseRepository as ExpenseRepositoryContract } from "#expense/domain/repository/expense-repository";
 import { ExpenseType } from "#expense/domain/validators/expense.validator";
 import { LoadEntityError } from "#seedwork/domain/errors/load-entity.error";
@@ -23,6 +25,7 @@ import { TeamSequelize } from "#team/infra/db/sequelize/team-sequelize";
 
 const { SupplierModel } = SupplierSequelize;
 const { TeamModel } = TeamSequelize;
+const { BudgetModel } = BudgetSequelize;
 
 export namespace ExpenseSequelize {
   type ExpenseModelProps = {
@@ -36,6 +39,7 @@ export namespace ExpenseSequelize {
     purchaseRequest?: string;
     purchaseOrder?: string;
     team_id: string;
+    budget_id: string;
     created_by: string;
     created_at: Date;
     updated_by: string;
@@ -83,6 +87,13 @@ export namespace ExpenseSequelize {
     @BelongsTo(() => TeamModel)
     declare team: TeamSequelize.TeamModel;
 
+    @ForeignKey(() => BudgetModel)
+    @Column({ allowNull: false, type: DataType.UUID() })
+    declare budget_id: string;
+
+    @BelongsTo(() => BudgetModel)
+    declare budget: BudgetSequelize.BudgetModel;
+
     @Column({ allowNull: false, type: DataType.STRING(255) })
     declare created_by: string;
 
@@ -111,6 +122,7 @@ export namespace ExpenseSequelize {
           purchaseRequest: null,
           purchaseOrder: null,
           team_id: chance.guid({ version: 4 }),
+          budget_id: chance.guid({ version: 4 }),
           created_at: chance.date(),
           updated_by: chance.word(),
           updated_at: chance.date(),
@@ -212,6 +224,7 @@ export namespace ExpenseSequelize {
         purchaseRequest,
         purchaseOrder,
         team_id,
+        budget_id,
         created_by,
         created_at,
         updated_by,
@@ -230,6 +243,7 @@ export namespace ExpenseSequelize {
             purchaseRequest,
             purchaseOrder,
             team_id: team_id ? new TeamId(team_id) : null,
+            budget_id: budget_id ? new BudgetId(budget_id) : null,
           },
           { created_by, created_at, updated_by, updated_at },
           new UniqueEntityId(id)

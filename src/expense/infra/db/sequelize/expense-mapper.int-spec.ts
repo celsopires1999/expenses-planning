@@ -1,10 +1,12 @@
+import { BudgetSequelize } from "#budget/infra/db/sequelize/budget-sequelize";
+import { BudgetId } from "#expense/domain/entities/budget-id.vo";
 import { Expense } from "#expense/domain/entities/expense";
+import { TeamId } from "#expense/domain/entities/team-id.vo";
+import { ExpenseType } from "#expense/domain/validators/expense.validator";
+import { ExpenseSequelize } from "#expense/infra/db/sequelize/expense-sequelize";
 import { LoadEntityError } from "#seedwork/domain/errors/load-entity.error";
 import { UniqueEntityId } from "#seedwork/domain/value-objects/unique-entity-id.vo";
-import { ExpenseSequelize } from "#expense/infra/db/sequelize/expense-sequelize";
 import { setupSequelize } from "#seedwork/infra/testing/helpers/db";
-import { ExpenseType } from "#expense/domain/validators/expense.validator";
-import { TeamId } from "#expense/domain/entities/team-id.vo";
 import { SupplierSequelize } from "#supplier/infra/db/sequelize/supplier-sequelize";
 import { TeamMemberSequelize } from "#team-member/infra/db/sequelize/team-member-sequelize";
 import { TeamSequelize } from "#team/infra/db/sequelize/team-sequelize";
@@ -13,6 +15,7 @@ const { ExpenseModel, ExpenseModelMapper } = ExpenseSequelize;
 const { SupplierModel } = SupplierSequelize;
 const { TeamModel, TeamRoleModel } = TeamSequelize;
 const { TeamMemberModel } = TeamMemberSequelize;
+const { BudgetModel } = BudgetSequelize;
 
 describe("ExpenseMapper Integration Test", () => {
   setupSequelize({
@@ -22,6 +25,7 @@ describe("ExpenseMapper Integration Test", () => {
       TeamModel,
       TeamRoleModel,
       TeamMemberModel,
+      BudgetModel,
     ],
   });
 
@@ -75,6 +79,7 @@ describe("ExpenseMapper Integration Test", () => {
       purchaseRequest: null,
       purchaseOrder: null,
       team_id: "2bcaaafd-6b55-4a60-98ee-f78b352ee7d8",
+      budget_id: "ae21f4b3-ecac-4ad9-9496-d2da487c4044",
       created_by: "system",
       created_at,
     });
@@ -92,6 +97,7 @@ describe("ExpenseMapper Integration Test", () => {
         purchaseRequest: null,
         purchaseOrder: null,
         team_id: new TeamId("2bcaaafd-6b55-4a60-98ee-f78b352ee7d8"),
+        budget_id: new BudgetId("ae21f4b3-ecac-4ad9-9496-d2da487c4044"),
       },
       {
         created_by: "system",

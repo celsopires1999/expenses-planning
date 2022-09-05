@@ -1,3 +1,4 @@
+import { BudgetId } from "#expense/domain/entities/budget-id.vo";
 import { Expense } from "#expense/domain/entities/expense";
 import { SupplierId } from "#expense/domain/entities/supplier-id.vo";
 import { TeamId } from "#expense/domain/entities/team-id.vo";
@@ -10,6 +11,7 @@ import { setupSequelize } from "#seedwork/infra/testing/helpers/db";
 import { SupplierSequelize } from "#supplier/infra/db/sequelize/supplier-sequelize";
 import { TeamMemberSequelize } from "#team-member/infra/db/sequelize/team-member-sequelize";
 import { TeamSequelize } from "#team/infra/db/sequelize/team-sequelize";
+import { BudgetSequelize } from "#budget/infra/db/sequelize/budget-sequelize";
 import _chance from "chance";
 
 const chance = _chance();
@@ -18,6 +20,7 @@ const { ExpenseModel, ExpenseModelMapper } = ExpenseSequelize;
 const { SupplierModel } = SupplierSequelize;
 const { TeamModel, TeamRoleModel } = TeamSequelize;
 const { TeamMemberModel } = TeamMemberSequelize;
+const { BudgetModel } = BudgetSequelize;
 
 describe("ExpenseSequelizeRepository Integration Tests", () => {
   setupSequelize({
@@ -27,6 +30,7 @@ describe("ExpenseSequelizeRepository Integration Tests", () => {
       TeamModel,
       TeamRoleModel,
       TeamMemberModel,
+      BudgetModel,
     ],
   });
 
@@ -46,6 +50,7 @@ describe("ExpenseSequelizeRepository Integration Tests", () => {
     purchaseRequest: "1234567890",
     purchaseOrder: "1234567890",
     team_id: new TeamId("2bcaaafd-6b55-4a60-98ee-f78b352ee7d8"),
+    budget_id: new BudgetId("ae21f4b3-ecac-4ad9-9496-d2da487c4044"),
   };
 
   it("should insert a new entity", async () => {
@@ -70,6 +75,7 @@ describe("ExpenseSequelizeRepository Integration Tests", () => {
         purchaseRequest: null,
         purchaseOrder: null,
         team_id: new TeamId("2bcaaafd-6b55-4a60-98ee-f78b352ee7d8"),
+        budget_id: new BudgetId("ae21f4b3-ecac-4ad9-9496-d2da487c4044"),
       },
       { created_by: "system", created_at: new Date() }
     );
@@ -230,6 +236,7 @@ describe("ExpenseSequelizeRepository Integration Tests", () => {
           purchaseRequest: "1234567890",
           purchaseOrder: "1234567890",
           team_id: "2bcaaafd-6b55-4a60-98ee-f78b352ee7d8",
+          budget_id: "ae21f4b3-ecac-4ad9-9496-d2da487c4044",
           created_by: "system",
           created_at: created_at,
           updated_by: "system",
@@ -251,6 +258,7 @@ describe("ExpenseSequelizeRepository Integration Tests", () => {
               purchaseRequest: i.purchaseRequest,
               purchaseOrder: i.purchaseOrder,
               team_id: new TeamId(i.team_id),
+              budget_id: new BudgetId("ae21f4b3-ecac-4ad9-9496-d2da487c4044"),
             },
             {
               created_by: "system",
@@ -321,6 +329,7 @@ describe("ExpenseSequelizeRepository Integration Tests", () => {
           purchaseRequest: "1234567890",
           purchaseOrder: "1234567890",
           team_id: "2bcaaafd-6b55-4a60-98ee-f78b352ee7d8",
+          budget_id: "ae21f4b3-ecac-4ad9-9496-d2da487c4044",
           created_by: "system",
           created_at: new Date(created_at.getTime() + 100 * index),
           updated_by: "system",
@@ -346,6 +355,7 @@ describe("ExpenseSequelizeRepository Integration Tests", () => {
         purchaseRequest: "1234567890",
         purchaseOrder: "1234567890",
         team_id: "2bcaaafd-6b55-4a60-98ee-f78b352ee7d8",
+        budget_id: "ae21f4b3-ecac-4ad9-9496-d2da487c4044",
         created_by: "system",
         created_at: new Date(),
         updated_by: "system",
@@ -424,6 +434,7 @@ describe("ExpenseSequelizeRepository Integration Tests", () => {
         purchaseRequest: "1234567890",
         purchaseOrder: "1234567890",
         team_id: "2bcaaafd-6b55-4a60-98ee-f78b352ee7d8",
+        budget_id: "ae21f4b3-ecac-4ad9-9496-d2da487c4044",
         created_by: "system",
         created_at: new Date(),
         updated_by: "system",
@@ -532,6 +543,7 @@ describe("ExpenseSequelizeRepository Integration Tests", () => {
         purchaseRequest: "1234567890",
         purchaseOrder: "1234567890",
         team_id: "2bcaaafd-6b55-4a60-98ee-f78b352ee7d8",
+        budget_id: "ae21f4b3-ecac-4ad9-9496-d2da487c4044",
         created_by: "system",
         created_at: new Date(),
         updated_by: "system",
@@ -603,6 +615,7 @@ describe("ExpenseSequelizeRepository Integration Tests", () => {
             purchaseRequest: entityProps.purchaseRequest,
             purchaseOrder: entityProps.purchaseOrder,
             team_id: new TeamId(entityProps.team_id),
+            budget_id: new BudgetId("ae21f4b3-ecac-4ad9-9496-d2da487c4044"),
           },
           {
             created_by: entityProps.created_by,
@@ -627,18 +640,20 @@ describe("ExpenseSequelizeRepository Integration Tests", () => {
   });
 
   async function createDependencies(
-    options: { supplier_id?: string; team_id?: string } = {
+    options: { supplier_id?: string; team_id?: string; budget_id?: string } = {
       supplier_id: "2bcaaafd-6b55-4a60-98ee-f78b352ee7d8",
       team_id: "2bcaaafd-6b55-4a60-98ee-f78b352ee7d8",
+      budget_id: "ae21f4b3-ecac-4ad9-9496-d2da487c4044",
     }
   ) {
     const created_at = new Date();
     const created_by = "system";
     const updated_at = new Date();
     const updated_by = "system";
-    const { supplier_id, team_id } = options;
+    const { supplier_id, team_id, budget_id } = options;
     const supplierName = "some supplier name";
     const teamName = "some team name";
+    const budgetName = "some budget name";
 
     try {
       await SupplierModel.create({
@@ -658,6 +673,20 @@ describe("ExpenseSequelizeRepository Integration Tests", () => {
       await TeamModel.create({
         id: team_id,
         name: teamName,
+        created_at,
+        created_by,
+        updated_at,
+        updated_by,
+      });
+    } catch (e) {
+      console.log(e);
+      throw e;
+    }
+
+    try {
+      await BudgetModel.create({
+        id: budget_id,
+        name: budgetName,
         created_at,
         created_by,
         updated_at,
