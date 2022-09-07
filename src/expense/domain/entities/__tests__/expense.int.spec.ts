@@ -1,10 +1,10 @@
-import { InvalidExpenseError } from "#expense/domain/errors/expense.error";
-import { ExpenseType } from "#expense/domain/validators/expense.validator";
-import { EntityValidationError } from "#seedwork/domain/errors/validation.error";
+import { BudgetId } from "#expense/domain/entities/budget-id.vo";
 import { Expense, ExpenseProps } from "#expense/domain/entities/expense";
 import { SupplierId } from "#expense/domain/entities/supplier-id.vo";
 import { TeamId } from "#expense/domain/entities/team-id.vo";
-import { BudgetId } from "#expense/domain/entities/budget-id.vo";
+import { InvalidExpenseError } from "#expense/domain/errors/expense.error";
+import { ExpenseType } from "#expense/domain/validators/expense.validator";
+import { EntityValidationError } from "#seedwork/domain/errors/validation.error";
 
 describe("Expense Integration Tests", () => {
   describe("validations with errors", () => {
@@ -29,7 +29,7 @@ describe("Expense Integration Tests", () => {
         ],
         amount: [
           "amount should not be empty",
-          "amount must be a number conforming to the specified constraints",
+          "amount must have max two decimal places",
           "amount must not be less than 0.01",
         ],
         type: ["type should not be empty", "type must be a valid enum value"],
@@ -209,7 +209,7 @@ describe("Expense Integration Tests", () => {
         const err = e as EntityValidationError;
         expect(err.error).toMatchObject({
           amount: [
-            "amount must be a number conforming to the specified constraints",
+            "amount must have max two decimal places",
             "amount must not be less than 0.01",
           ],
         });
@@ -268,7 +268,7 @@ describe("Expense Integration Tests", () => {
             "year must be an integer number",
           ],
           amount: [
-            "amount must be a number conforming to the specified constraints",
+            "amount must have max two decimal places",
             "amount must not be less than 0.01",
           ],
           type: ["type must be a valid enum value"],

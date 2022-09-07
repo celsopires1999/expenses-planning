@@ -180,60 +180,67 @@ describe("ExpenseValidator Tests", () => {
   describe("invalidation cases for amount field", () => {
     const arrange = [
       {
+        // 0
         data: null as any,
         message: {
           amount: [
             "amount should not be empty",
-            "amount must be a number conforming to the specified constraints",
+            "amount must have max two decimal places",
             "amount must not be less than 0.01",
           ],
         },
       },
       {
+        // 1
         data: { amount: null },
         message: {
           amount: [
             "amount should not be empty",
-            "amount must be a number conforming to the specified constraints",
+            "amount must have max two decimal places",
             "amount must not be less than 0.01",
           ],
         },
       },
       {
+        // 2
         data: { amount: "" },
         message: {
           amount: [
             "amount should not be empty",
-            "amount must be a number conforming to the specified constraints",
+            "amount must have max two decimal places",
             "amount must not be less than 0.01",
           ],
         },
       },
       {
+        // 3
         data: { amount: {} },
         message: {
           amount: [
-            "amount must be a number conforming to the specified constraints",
+            "amount must have max two decimal places",
             "amount must not be less than 0.01",
           ],
         },
       },
       {
+        // 4
         data: { amount: "5" as any },
         message: {
           amount: [
-            "amount must be a number conforming to the specified constraints",
+            "amount must have max two decimal places",
             "amount must not be less than 0.01",
           ],
         },
       },
       {
+        // 5
         data: { amount: 0 as any },
         message: {
           amount: ["amount must not be less than 0.01"],
         },
       },
       {
+        // 6
         data: { amount: -1 as any },
         message: {
           amount: ["amount must not be less than 0.01"],

@@ -41,7 +41,10 @@ export class ExpenseRules {
   year: number;
 
   @Min(0.01)
-  @IsNumber()
+  @IsNumber(
+    { maxDecimalPlaces: 2 },
+    { message: "amount must have max two decimal places" }
+  )
   @IsNotEmpty()
   amount: number;
 
