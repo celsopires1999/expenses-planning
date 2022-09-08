@@ -1,12 +1,15 @@
 import { Invoice } from "#expense/domain/entities/invoice";
 import { InvoiceStatus } from "#expense/domain/validators/invoice.validator";
+import { ExpenseSequelize } from "#expense/infra/db/sequelize/expense-sequelize";
 import { LoadEntityError } from "#seedwork/domain/errors/load-entity.error";
 import { EntityValidationError } from "#seedwork/domain/errors/validation.error";
 import { UniqueEntityId } from "#seedwork/domain/value-objects/unique-entity-id.vo";
 import { SequelizeModelFactory } from "#seedwork/infra/sequelize/sequelize-model-factory";
 import {
+  BelongsTo,
   Column,
   DataType,
+  ForeignKey,
   Model,
   PrimaryKey,
   Table,
@@ -15,6 +18,7 @@ import {
 export namespace InvoiceSequelize {
   type InvoiceModelProps = {
     id: string;
+    expense_id: string;
     amount: number;
     date: Date;
     document?: string;
@@ -30,6 +34,13 @@ export namespace InvoiceSequelize {
     @PrimaryKey
     @Column({ type: DataType.UUID })
     declare id: string;
+
+    @ForeignKey(() => ExpenseSequelize.ExpenseModel)
+    @Column({ allowNull: false, type: DataType.UUID })
+    declare expense_id: string;
+
+    @BelongsTo(() => ExpenseSequelize.ExpenseModel)
+    declare expense: ExpenseSequelize.ExpenseModel;
 
     @Column({ allowNull: false, type: DataType.DECIMAL(10, 2) })
     declare amount: number;
@@ -61,6 +72,7 @@ export namespace InvoiceSequelize {
         InvoiceModel,
         () => ({
           id: chance.guid({ version: 4 }),
+          expense_id: chance.guid({ version: 4 }),
           amount: chance.d6(),
           date: chance.date(),
           document: chance.animal(),

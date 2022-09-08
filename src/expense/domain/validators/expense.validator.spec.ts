@@ -7,6 +7,8 @@ import ExpenseValidatorFactory, {
   ExpenseType,
   ExpenseValidator,
 } from "#expense/domain/validators/expense.validator";
+import { Invoice } from "../entities/invoice";
+import { InvoiceStatus } from "./invoice.validator";
 
 describe("ExpenseValidator Tests", () => {
   let validator: ExpenseValidator;
@@ -488,8 +490,49 @@ describe("ExpenseValidator Tests", () => {
     });
   });
 
+  describe("invalidation cases for invoices field", () => {
+    const arrange = [
+      // 0
+      {
+        data: {
+          invoices: {},
+        },
+        message: {
+          invoices: [
+            "each value in invoices must be an instance of Invoice",
+            "invoices must be an array",
+          ],
+        },
+      },
+      // 1
+      {
+        data: {
+          invoices: [new SupplierId("47f3b2ad-8844-492a-a1a1-75a8c838daae")],
+        },
+        message: {
+          invoices: ["each value in invoices must be an instance of Invoice"],
+        },
+      },
+      // 2
+      {
+        data: { invoices: 5 as any },
+        message: {
+          invoices: [
+            "each value in invoices must be an instance of Invoice",
+            "invoices must be an array",
+          ],
+        },
+      },
+    ];
+
+    test.each(arrange)("Test Case: #%# - team field", (i) => {
+      expect({ validator, data: i.data }).containsErrorMessages(i.message);
+    });
+  });
+
   describe("valid cases for fields", () => {
     const arrange: ExpenseProps[] = [
+      // 0
       {
         name: "some name",
         description: "some description",
@@ -499,6 +542,7 @@ describe("ExpenseValidator Tests", () => {
         team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
         budget_id: new BudgetId("ae21f4b3-ecac-4ad9-9496-d2da487c4044"),
       },
+      // 1
       {
         name: "some name",
         description: "some description",
@@ -509,6 +553,7 @@ describe("ExpenseValidator Tests", () => {
         team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
         budget_id: new BudgetId("ae21f4b3-ecac-4ad9-9496-d2da487c4044"),
       },
+      // 2
       {
         name: "some name",
         description: "some description",
@@ -520,6 +565,7 @@ describe("ExpenseValidator Tests", () => {
         team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
         budget_id: new BudgetId("ae21f4b3-ecac-4ad9-9496-d2da487c4044"),
       },
+      // 3
       {
         name: "some name",
         description: "some description",
@@ -531,6 +577,39 @@ describe("ExpenseValidator Tests", () => {
         purchaseOrder: "9876543210",
         team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
         budget_id: new BudgetId("ae21f4b3-ecac-4ad9-9496-d2da487c4044"),
+      },
+      // 4
+      {
+        name: "some name",
+        description: "some description",
+        year: 2021,
+        amount: 0.01,
+        type: ExpenseType.OPEX,
+        supplier_id: new SupplierId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
+        purchaseRequest: "0123456789",
+        purchaseOrder: "9876543210",
+        team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
+        budget_id: new BudgetId("ae21f4b3-ecac-4ad9-9496-d2da487c4044"),
+        invoices: [
+          new Invoice(
+            {
+              amount: 55.55,
+              date: new Date("2021-07-07"),
+              status: InvoiceStatus.ACTUAL,
+              document: "FAT4711",
+            },
+            { created_by: "system" }
+          ),
+          new Invoice(
+            {
+              amount: 44.44,
+              date: new Date("2021-08-08"),
+              status: InvoiceStatus.ACTUAL,
+              document: "FAT4712",
+            },
+            { created_by: "system" }
+          ),
+        ],
       },
     ];
     test.each(arrange)("Test Case: #%#", (item) => {

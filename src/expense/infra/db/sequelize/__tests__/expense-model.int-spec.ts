@@ -1,6 +1,7 @@
 import { BudgetSequelize } from "#budget/infra/db/sequelize/budget-sequelize";
 import { ExpenseType } from "#expense/domain/validators/expense.validator";
 import { ExpenseSequelize } from "#expense/infra/db/sequelize/expense-sequelize";
+import { InvoiceSequelize } from "#expense/infra/db/sequelize/invoice-sequelize";
 import { setupSequelize } from "#seedwork/infra/testing/helpers/db";
 import { SupplierSequelize } from "#supplier/infra/db/sequelize/supplier-sequelize";
 import { TeamMemberSequelize } from "#team-member/infra/db/sequelize/team-member-sequelize";
@@ -12,6 +13,7 @@ const { SupplierModel } = SupplierSequelize;
 const { TeamModel, TeamRoleModel } = TeamSequelize;
 const { TeamMemberModel } = TeamMemberSequelize;
 const { BudgetModel } = BudgetSequelize;
+const { InvoiceModel } = InvoiceSequelize;
 
 describe("ExpenseModel Integration Tests", () => {
   setupSequelize({
@@ -22,6 +24,7 @@ describe("ExpenseModel Integration Tests", () => {
       TeamRoleModel,
       TeamMemberModel,
       BudgetModel,
+      InvoiceModel,
     ],
   });
 

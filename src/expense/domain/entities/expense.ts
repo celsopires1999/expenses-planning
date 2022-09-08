@@ -1,15 +1,16 @@
-import { AuditFieldsProps } from "#seedwork/domain/value-objects/audit-fields.vo";
+import { BudgetId } from "#expense/domain/entities/budget-id.vo";
+import { Invoice } from "#expense/domain/entities/invoice";
+import { SupplierId } from "#expense/domain/entities/supplier-id.vo";
+import { TeamId } from "#expense/domain/entities/team-id.vo";
 import { InvalidExpenseError } from "#expense/domain/errors/expense.error";
 import {
   ExpenseType,
   ExpenseValidatorFactory,
 } from "#expense/domain/validators/expense.validator";
 import { Entity } from "#seedwork/domain/entity/entity";
-import { UniqueEntityId } from "#seedwork/domain/value-objects/unique-entity-id.vo";
 import { EntityValidationError } from "#seedwork/domain/errors/validation.error";
-import { SupplierId } from "#expense/domain/entities/supplier-id.vo";
-import { TeamId } from "#expense/domain/entities/team-id.vo";
-import { BudgetId } from "#expense/domain/entities//budget-id.vo";
+import { AuditFieldsProps } from "#seedwork/domain/value-objects/audit-fields.vo";
+import { UniqueEntityId } from "#seedwork/domain/value-objects/unique-entity-id.vo";
 
 export interface ExpenseProps {
   name: string;
@@ -22,6 +23,7 @@ export interface ExpenseProps {
   purchaseOrder?: string;
   team_id: TeamId;
   budget_id: BudgetId;
+  invoices?: Invoice[];
 }
 
 export class Expense extends Entity<ExpenseProps> {
@@ -42,6 +44,7 @@ export class Expense extends Entity<ExpenseProps> {
     this.purchaseOrder = this.props.purchaseOrder;
     this.team_id = this.props.team_id;
     this.budget_id = this.props.budget_id;
+    this.invoices = this.props.invoices;
   }
 
   change(
@@ -170,6 +173,14 @@ export class Expense extends Entity<ExpenseProps> {
     super.updateAuditFields(updated_by);
   }
 
+  updateInvoices(invoices: Invoice[], updated_by: string) {
+    const _props = { ...this.props };
+    _props.invoices = invoices;
+    Expense.validate(_props);
+    this.invoices = _props.invoices;
+    super.updateAuditFields(updated_by);
+  }
+
   get name(): string {
     return this.props.name;
   }
@@ -250,11 +261,56 @@ export class Expense extends Entity<ExpenseProps> {
     this.props.budget_id = value;
   }
 
+  get invoices(): Invoice[] {
+    return this.props.invoices;
+  }
+
+  private set invoices(value: Invoice[]) {
+    if (!Array.isArray(value) || value.length === 0) {
+      this.props.invoices = null;
+    } else {
+      this.props.invoices = value;
+    }
+  }
+
   static validate(props: ExpenseProps) {
     const validator = ExpenseValidatorFactory.create();
     const isValid = validator.validate(props);
     if (!isValid) {
       throw new EntityValidationError(validator.errors);
     }
+  }
+
+  toJSON() {
+    return {
+      id: this.id,
+      name: this.name,
+      description: this.description,
+      year: this.year,
+      amount: this.amount,
+      type: this.type,
+      supplier_id: this.supplier_id?.value ?? null,
+      purchaseRequest: this.purchaseRequest ?? null,
+      purchaseOrder: this.purchaseOrder ?? null,
+      team_id: this.team_id.value,
+      budget_id: this.budget_id.value,
+      invoices: this.invoices
+        ? this.invoices.map((invoice) => ({
+            id: invoice.id,
+            amount: invoice.amount,
+            date: invoice.date,
+            status: invoice.status,
+            document: invoice.document,
+            created_by: invoice.created_by,
+            created_at: invoice.created_at,
+            updated_by: invoice.updated_by,
+            updated_at: invoice.updated_at,
+          }))
+        : null,
+      created_by: this.created_by,
+      created_at: this.created_at,
+      updated_by: this.updated_by,
+      updated_at: this.updated_at,
+    };
   }
 }

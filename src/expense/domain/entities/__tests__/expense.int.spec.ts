@@ -541,7 +541,18 @@ describe("Expense Integration Tests", () => {
         budget_id: new BudgetId("ae21f4b3-ecac-4ad9-9496-d2da487c4044"),
       };
       const entity = new Expense(props, { created_by: "user" });
-      expect(entity.toJSON()).toMatchObject(props);
+      expect(entity.toJSON()).toMatchObject({
+        name: "some name",
+        description: "some description",
+        year: 2022,
+        amount: 2500.55,
+        type: ExpenseType.CAPEX,
+        supplier_id: "47f3b2ad-8844-492a-a1a1-75a8c838daae",
+        purchaseRequest: "1234567890",
+        purchaseOrder: "0987654321",
+        team_id: "47f3b2ad-8844-492a-a1a1-75a8c838daae",
+        budget_id: "ae21f4b3-ecac-4ad9-9496-d2da487c4044",
+      });
       expect(entity.updated_at).toEqual(entity.created_at);
 
       const oldProps = { ...entity.props };

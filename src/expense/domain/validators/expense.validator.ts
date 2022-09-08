@@ -1,4 +1,5 @@
 import {
+  IsArray,
   IsEnum,
   IsInstance,
   IsInt,
@@ -14,6 +15,7 @@ import {
   Min,
 } from "class-validator";
 import BudgetId from "../entities/budget-id.vo";
+import { Invoice } from "../entities/invoice";
 import { ClassValidatorFields } from "./../../../@seedwork/domain/validators/class-validator-fields";
 import { ExpenseProps } from "./../entities/expense";
 import { SupplierId } from "./../entities/supplier-id.vo";
@@ -76,6 +78,11 @@ export class ExpenseRules {
   @IsNotEmpty()
   @IsInstance(BudgetId)
   budget_id: BudgetId;
+
+  @IsArray()
+  @IsOptional()
+  @IsInstance(Invoice, { each: true })
+  invoices: Invoice[];
 
   constructor(data: any) {
     Object.assign(this, data);

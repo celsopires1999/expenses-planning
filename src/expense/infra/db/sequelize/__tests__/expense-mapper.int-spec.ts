@@ -4,6 +4,7 @@ import { Expense } from "#expense/domain/entities/expense";
 import { TeamId } from "#expense/domain/entities/team-id.vo";
 import { ExpenseType } from "#expense/domain/validators/expense.validator";
 import { ExpenseSequelize } from "#expense/infra/db/sequelize/expense-sequelize";
+import { InvoiceSequelize } from "#expense/infra/db/sequelize/invoice-sequelize";
 import { LoadEntityError } from "#seedwork/domain/errors/load-entity.error";
 import { UniqueEntityId } from "#seedwork/domain/value-objects/unique-entity-id.vo";
 import { setupSequelize } from "#seedwork/infra/testing/helpers/db";
@@ -16,6 +17,7 @@ const { SupplierModel } = SupplierSequelize;
 const { TeamModel, TeamRoleModel } = TeamSequelize;
 const { TeamMemberModel } = TeamMemberSequelize;
 const { BudgetModel } = BudgetSequelize;
+const { InvoiceModel } = InvoiceSequelize;
 
 describe("ExpenseMapper Integration Test", () => {
   setupSequelize({
@@ -26,6 +28,7 @@ describe("ExpenseMapper Integration Test", () => {
       TeamRoleModel,
       TeamMemberModel,
       BudgetModel,
+      InvoiceModel,
     ],
   });
 

@@ -1,12 +1,32 @@
-import { setupSequelize } from "#seedwork/infra/testing/helpers/db";
-import { DataType } from "sequelize-typescript";
-import { InvoiceSequelize } from "#expense/infra/db/sequelize/invoice-sequelize";
+import { BudgetSequelize } from "#budget/infra/db/sequelize/budget-sequelize";
 import { InvoiceStatus } from "#expense/domain/validators/invoice.validator";
+import { InvoiceSequelize } from "#expense/infra/db/sequelize/invoice-sequelize";
+import { setupSequelize } from "#seedwork/infra/testing/helpers/db";
+import { SupplierSequelize } from "#supplier/infra/db/sequelize/supplier-sequelize";
+import { TeamMemberSequelize } from "#team-member/infra/db/sequelize/team-member-sequelize";
+import { TeamSequelize } from "#team/infra/db/sequelize/team-sequelize";
+import { DataType } from "sequelize-typescript";
+import { ExpenseSequelize } from "../expense-sequelize";
 
 const { InvoiceModel } = InvoiceSequelize;
+const { ExpenseModel } = ExpenseSequelize;
+const { SupplierModel } = SupplierSequelize;
+const { TeamModel, TeamRoleModel } = TeamSequelize;
+const { BudgetModel } = BudgetSequelize;
+const { TeamMemberModel } = TeamMemberSequelize;
 
 describe("InvoiceModel Integration Tests", () => {
-  setupSequelize({ models: [InvoiceModel] });
+  setupSequelize({
+    models: [
+      InvoiceModel,
+      ExpenseModel,
+      SupplierModel,
+      TeamModel,
+      TeamRoleModel,
+      BudgetModel,
+      TeamMemberModel,
+    ],
+  });
 
   test("mapping attributes", () => {
     const attributesMap = InvoiceModel.getAttributes();
@@ -14,6 +34,7 @@ describe("InvoiceModel Integration Tests", () => {
 
     expect(attributes).toStrictEqual([
       "id",
+      "expense_id",
       "amount",
       "date",
       "document",
@@ -28,6 +49,13 @@ describe("InvoiceModel Integration Tests", () => {
       field: "id",
       fieldName: "id",
       primaryKey: true,
+      type: DataType.UUID(),
+    });
+
+    expect(attributesMap.expense_id).toMatchObject({
+      field: "expense_id",
+      fieldName: "expense_id",
+      allowNull: false,
       type: DataType.UUID(),
     });
 
@@ -89,6 +117,7 @@ describe("InvoiceModel Integration Tests", () => {
   test("create", async () => {
     const arrange = {
       id: "312cffad-1938-489e-a706-643dc9a3cfd3",
+      expense_id: "312cffad-1938-489e-a706-643dc9a3cfd3",
       amount: 55.55,
       date: new Date(),
       document: "FAT123",
@@ -99,8 +128,11 @@ describe("InvoiceModel Integration Tests", () => {
       updated_at: new Date(),
     };
 
-    const entity = await InvoiceModel.create(arrange);
-
-    expect(entity.toJSON()).toStrictEqual(arrange);
+    try {
+      await InvoiceModel.create(arrange);
+      fail("The Model has not thrown an Error");
+    } catch (e) {
+      expect(e.name).toBe("SequelizeForeignKeyConstraintError");
+    }
   });
 });
