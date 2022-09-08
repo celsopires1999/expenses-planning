@@ -1,4 +1,5 @@
 import {
+  IsArray,
   IsEnum,
   IsInstance,
   IsInt,
@@ -13,6 +14,8 @@ import {
   MaxLength,
   Min,
 } from "class-validator";
+import BudgetId from "../entities/budget-id.vo";
+import { Invoice } from "../entities/invoice";
 import { ClassValidatorFields } from "./../../../@seedwork/domain/validators/class-validator-fields";
 import { ExpenseProps } from "./../entities/expense";
 import { SupplierId } from "./../entities/supplier-id.vo";
@@ -40,7 +43,10 @@ export class ExpenseRules {
   year: number;
 
   @Min(0.01)
-  @IsNumber()
+  @IsNumber(
+    { maxDecimalPlaces: 2 },
+    { message: "amount must have max two decimal places" }
+  )
   @IsNotEmpty()
   amount: number;
 
@@ -67,6 +73,16 @@ export class ExpenseRules {
   @IsNotEmpty()
   @IsInstance(TeamId)
   team_id: TeamId;
+
+  @IsNotEmptyObject()
+  @IsNotEmpty()
+  @IsInstance(BudgetId)
+  budget_id: BudgetId;
+
+  @IsArray()
+  @IsOptional()
+  @IsInstance(Invoice, { each: true })
+  invoices: Invoice[];
 
   constructor(data: any) {
     Object.assign(this, data);

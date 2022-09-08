@@ -1,14 +1,16 @@
-import { AuditFieldsProps } from "#seedwork/domain/value-objects/audit-fields.vo";
+import { BudgetId } from "#expense/domain/entities/budget-id.vo";
+import { Invoice } from "#expense/domain/entities/invoice";
+import { SupplierId } from "#expense/domain/entities/supplier-id.vo";
+import { TeamId } from "#expense/domain/entities/team-id.vo";
 import { InvalidExpenseError } from "#expense/domain/errors/expense.error";
 import {
   ExpenseType,
   ExpenseValidatorFactory,
 } from "#expense/domain/validators/expense.validator";
 import { Entity } from "#seedwork/domain/entity/entity";
-import { UniqueEntityId } from "#seedwork/domain/value-objects/unique-entity-id.vo";
 import { EntityValidationError } from "#seedwork/domain/errors/validation.error";
-import { SupplierId } from "#expense/domain/entities/supplier-id.vo";
-import { TeamId } from "#expense/domain/entities/team-id.vo";
+import { AuditFieldsProps } from "#seedwork/domain/value-objects/audit-fields.vo";
+import { UniqueEntityId } from "#seedwork/domain/value-objects/unique-entity-id.vo";
 
 export interface ExpenseProps {
   name: string;
@@ -20,6 +22,8 @@ export interface ExpenseProps {
   purchaseRequest?: string;
   purchaseOrder?: string;
   team_id: TeamId;
+  budget_id: BudgetId;
+  invoices?: Invoice[];
 }
 
 export class Expense extends Entity<ExpenseProps> {
@@ -39,6 +43,8 @@ export class Expense extends Entity<ExpenseProps> {
     this.purchaseRequest = this.props.purchaseRequest;
     this.purchaseOrder = this.props.purchaseOrder;
     this.team_id = this.props.team_id;
+    this.budget_id = this.props.budget_id;
+    this.invoices = this.props.invoices;
   }
 
   change(
@@ -49,6 +55,7 @@ export class Expense extends Entity<ExpenseProps> {
       amount?: number;
       type?: ExpenseType;
       team_id?: TeamId;
+      budget_id?: BudgetId;
     },
     updated_by: string
   ): void {
@@ -60,6 +67,7 @@ export class Expense extends Entity<ExpenseProps> {
     _props.amount = props.amount ?? this.amount;
     _props.type = props.type ?? this.type;
     _props.team_id = props.team_id ?? this.team_id;
+    _props.budget_id = props.budget_id ?? this.budget_id;
 
     Expense.validate(_props);
 
@@ -69,6 +77,7 @@ export class Expense extends Entity<ExpenseProps> {
     this.amount = _props.amount;
     this.type = _props.type;
     this.team_id = _props.team_id;
+    this.budget_id = _props.budget_id;
 
     super.updateAuditFields(updated_by);
   }
@@ -164,6 +173,14 @@ export class Expense extends Entity<ExpenseProps> {
     super.updateAuditFields(updated_by);
   }
 
+  updateInvoices(invoices: Invoice[], updated_by: string) {
+    const _props = { ...this.props };
+    _props.invoices = invoices;
+    Expense.validate(_props);
+    this.invoices = _props.invoices;
+    super.updateAuditFields(updated_by);
+  }
+
   get name(): string {
     return this.props.name;
   }
@@ -236,11 +253,64 @@ export class Expense extends Entity<ExpenseProps> {
     this.props.team_id = value;
   }
 
+  get budget_id(): BudgetId {
+    return this.props.budget_id;
+  }
+
+  private set budget_id(value: BudgetId) {
+    this.props.budget_id = value;
+  }
+
+  get invoices(): Invoice[] {
+    return this.props.invoices;
+  }
+
+  private set invoices(value: Invoice[]) {
+    if (!Array.isArray(value) || value.length === 0) {
+      this.props.invoices = null;
+    } else {
+      this.props.invoices = value;
+    }
+  }
+
   static validate(props: ExpenseProps) {
     const validator = ExpenseValidatorFactory.create();
     const isValid = validator.validate(props);
     if (!isValid) {
       throw new EntityValidationError(validator.errors);
     }
+  }
+
+  toJSON() {
+    return {
+      id: this.id,
+      name: this.name,
+      description: this.description,
+      year: this.year,
+      amount: this.amount,
+      type: this.type,
+      supplier_id: this.supplier_id?.value ?? null,
+      purchaseRequest: this.purchaseRequest ?? null,
+      purchaseOrder: this.purchaseOrder ?? null,
+      team_id: this.team_id.value,
+      budget_id: this.budget_id.value,
+      invoices: this.invoices
+        ? this.invoices.map((invoice) => ({
+            id: invoice.id,
+            amount: invoice.amount,
+            date: invoice.date,
+            status: invoice.status,
+            document: invoice.document,
+            created_by: invoice.created_by,
+            created_at: invoice.created_at,
+            updated_by: invoice.updated_by,
+            updated_at: invoice.updated_at,
+          }))
+        : null,
+      created_by: this.created_by,
+      created_at: this.created_at,
+      updated_by: this.updated_by,
+      updated_at: this.updated_at,
+    };
   }
 }

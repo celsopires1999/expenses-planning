@@ -1,28 +1,34 @@
+import { BudgetSequelize } from "#budget/infra/db/sequelize/budget-sequelize";
+import { BudgetId } from "#expense/domain/entities/budget-id.vo";
 import { Expense } from "#expense/domain/entities/expense";
-import { SupplierSequelize } from "#supplier/infra/db/sequelize/supplier-sequelize";
+import { Invoice, InvoiceProps } from "#expense/domain/entities/invoice";
 import { SupplierId } from "#expense/domain/entities/supplier-id.vo";
 import { TeamId } from "#expense/domain/entities/team-id.vo";
 import { ExpenseRepository as ExpenseRepositoryContract } from "#expense/domain/repository/expense-repository";
 import { ExpenseType } from "#expense/domain/validators/expense.validator";
+import { InvoiceSequelize } from "#expense/infra/db/sequelize/invoice-sequelize";
 import { LoadEntityError } from "#seedwork/domain/errors/load-entity.error";
 import { NotFoundError } from "#seedwork/domain/errors/not-found.error";
 import { EntityValidationError } from "#seedwork/domain/errors/validation.error";
 import { UniqueEntityId } from "#seedwork/domain/value-objects/unique-entity-id.vo";
 import { SequelizeModelFactory } from "#seedwork/infra/sequelize/sequelize-model-factory";
+import { SupplierSequelize } from "#supplier/infra/db/sequelize/supplier-sequelize";
+import { TeamSequelize } from "#team/infra/db/sequelize/team-sequelize";
 import { Op } from "sequelize";
 import {
   BelongsTo,
   Column,
   DataType,
   ForeignKey,
+  HasMany,
   Model,
   PrimaryKey,
   Table,
 } from "sequelize-typescript";
-import { TeamSequelize } from "#team/infra/db/sequelize/team-sequelize";
 
 const { SupplierModel } = SupplierSequelize;
 const { TeamModel } = TeamSequelize;
+const { BudgetModel } = BudgetSequelize;
 
 export namespace ExpenseSequelize {
   type ExpenseModelProps = {
@@ -36,6 +42,8 @@ export namespace ExpenseSequelize {
     purchaseRequest?: string;
     purchaseOrder?: string;
     team_id: string;
+    budget_id: string;
+    invoices?: InvoiceProps[];
     created_by: string;
     created_at: Date;
     updated_by: string;
@@ -83,6 +91,16 @@ export namespace ExpenseSequelize {
     @BelongsTo(() => TeamModel)
     declare team: TeamSequelize.TeamModel;
 
+    @ForeignKey(() => BudgetModel)
+    @Column({ allowNull: false, type: DataType.UUID() })
+    declare budget_id: string;
+
+    @BelongsTo(() => BudgetModel)
+    declare budget: BudgetSequelize.BudgetModel;
+
+    @HasMany(() => InvoiceSequelize.InvoiceModel)
+    declare invoices: InvoiceSequelize.InvoiceModel[];
+
     @Column({ allowNull: false, type: DataType.STRING(255) })
     declare created_by: string;
 
@@ -111,6 +129,7 @@ export namespace ExpenseSequelize {
           purchaseRequest: null,
           purchaseOrder: null,
           team_id: chance.guid({ version: 4 }),
+          budget_id: chance.guid({ version: 4 }),
           created_at: chance.date(),
           updated_by: chance.word(),
           updated_at: chance.date(),
@@ -124,7 +143,10 @@ export namespace ExpenseSequelize {
   {
     sortableFields: string[] = ["name", "created_at"];
 
-    constructor(private expenseModel: typeof ExpenseModel) {}
+    constructor(
+      private expenseModel: typeof ExpenseModel,
+      private invoiceModel: typeof InvoiceSequelize.InvoiceModel
+    ) {}
 
     async exists(name: string): Promise<boolean> {
       const model = await this.expenseModel.findOne({
@@ -140,16 +162,27 @@ export namespace ExpenseSequelize {
       const offset = (props.page - 1) * props.per_page;
       const limit = props.per_page;
 
-      const { rows: models, count } = await this.expenseModel.findAndCountAll({
+      const count = await this.expenseModel.count({
         ...(props.filter && {
           where: { name: { [Op.like]: `%${props.filter}%` } },
         }),
-        ...(props.sort && this.sortableFields.includes(props.sort)
-          ? { order: [[props.sort, props.sort_dir]] }
-          : { order: [["created_at", "DESC"]] }),
-        offset,
-        limit,
       });
+
+      let models = [];
+      if (count !== 0) {
+        models = await this.expenseModel.findAll({
+          ...(props.filter && {
+            where: { name: { [Op.like]: `%${props.filter}%` } },
+          }),
+          ...(props.sort && this.sortableFields.includes(props.sort)
+            ? { order: [[props.sort, props.sort_dir]] }
+            : { order: [["created_at", "DESC"]] }),
+          offset,
+          limit,
+          include: [this.invoiceModel],
+        });
+      }
+
       return new ExpenseRepositoryContract.SearchResult({
         items: models.map((m) => ExpenseModelMapper.toEntity(m)),
         current_page: props.page,
@@ -162,34 +195,91 @@ export namespace ExpenseSequelize {
     }
 
     async insert(entity: Expense): Promise<void> {
-      await this.expenseModel.create(entity.toJSON());
+      entity.invoices
+        ? await this.expenseModel.create(entity.toJSON(), {
+            include: [{ model: this.invoiceModel }],
+          })
+        : await this.expenseModel.create(entity.toJSON());
     }
 
     async findById(id: string | UniqueEntityId): Promise<Expense> {
       const _id = `${id}`;
-      const model = await this._get(_id);
+
+      const model = await this.expenseModel.findByPk(_id, {
+        rejectOnEmpty: new NotFoundError(`Entity not found using ID ${id}`),
+        include: [this.invoiceModel],
+      });
+
       return ExpenseModelMapper.toEntity(model);
     }
 
     async findAll(): Promise<Expense[]> {
-      const models = await this.expenseModel.findAll();
+      const models = await this.expenseModel.findAll({
+        include: [this.invoiceModel],
+      });
       return models.map((m) => ExpenseModelMapper.toEntity(m));
     }
 
     async update(entity: Expense): Promise<void> {
+      const sequelize = this.expenseModel.sequelize;
       await this._get(entity.id);
-      await this.expenseModel.update(entity.toJSON(), {
-        where: { id: entity.id },
-      });
+
+      try {
+        await sequelize.transaction(async (t) => {
+          await this.invoiceModel.destroy({
+            where: { expense_id: entity.id },
+            transaction: t,
+          });
+
+          if (entity.invoices) {
+            const invoices = entity.invoices.map((invoice) => {
+              return {
+                id: invoice.id,
+                expense_id: entity.id,
+                amount: invoice.amount,
+                date: invoice.date,
+                status: invoice.status,
+                document: invoice.document,
+                created_by: invoice.created_by,
+                created_at: invoice.created_at,
+                updated_by: invoice.updated_by,
+                updated_at: invoice.updated_at,
+              };
+            });
+            await this.invoiceModel.bulkCreate(invoices, { transaction: t });
+          }
+          await this.expenseModel.update(entity.toJSON(), {
+            where: { id: entity.id },
+            transaction: t,
+          });
+        });
+      } catch (e) {
+        console.log(e);
+        throw e;
+      }
     }
 
     async delete(id: string | UniqueEntityId): Promise<void> {
+      const sequelize = this.expenseModel.sequelize;
+
       const _id = `${id}`;
       await this._get(_id);
 
-      await this.expenseModel.destroy({
-        where: { id: _id },
-      });
+      try {
+        await sequelize.transaction(async (t) => {
+          await this.invoiceModel.destroy({
+            where: { expense_id: _id },
+            transaction: t,
+          });
+          await this.expenseModel.destroy({
+            where: { id: _id },
+            transaction: t,
+          });
+        });
+      } catch (e) {
+        console.log(e);
+        throw e;
+      }
     }
 
     private async _get(id: string): Promise<ExpenseModel> {
@@ -212,6 +302,7 @@ export namespace ExpenseSequelize {
         purchaseRequest,
         purchaseOrder,
         team_id,
+        budget_id,
         created_by,
         created_at,
         updated_by,
@@ -219,6 +310,26 @@ export namespace ExpenseSequelize {
       } = model.toJSON();
 
       try {
+        let invoices = null;
+        if (Array.isArray(model.invoices)) {
+          invoices = model.invoices.map((invoice) => {
+            return new Invoice(
+              {
+                amount: invoice.amount,
+                date: invoice.date,
+                status: invoice.status,
+                document: invoice.document,
+              },
+              {
+                created_by: invoice.created_by,
+                created_at: invoice.created_at,
+                updated_by: invoice.updated_by,
+                updated_at: invoice.updated_at,
+              },
+              new UniqueEntityId(invoice.id)
+            );
+          });
+        }
         return new Expense(
           {
             name,
@@ -230,6 +341,8 @@ export namespace ExpenseSequelize {
             purchaseRequest,
             purchaseOrder,
             team_id: team_id ? new TeamId(team_id) : null,
+            budget_id: budget_id ? new BudgetId(budget_id) : null,
+            invoices,
           },
           { created_by, created_at, updated_by, updated_at },
           new UniqueEntityId(id)

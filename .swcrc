@@ -10,7 +10,8 @@
       "#expense/*": ["./expense/*"],
       "#team-member/*": ["./team-member/*"],
       "#supplier/*": ["./supplier/*"],
-      "#team/*": ["./team/*"]
+      "#team/*": ["./team/*"],
+      "#budget/*": ["./budget/*"]
     }
   }
 }

@@ -1,5 +1,7 @@
+import { BudgetSequelize } from "#budget/infra/db/sequelize/budget-sequelize";
 import { ExpenseType } from "#expense/domain/validators/expense.validator";
 import { ExpenseSequelize } from "#expense/infra/db/sequelize/expense-sequelize";
+import { InvoiceSequelize } from "#expense/infra/db/sequelize/invoice-sequelize";
 import { setupSequelize } from "#seedwork/infra/testing/helpers/db";
 import { SupplierSequelize } from "#supplier/infra/db/sequelize/supplier-sequelize";
 import { TeamMemberSequelize } from "#team-member/infra/db/sequelize/team-member-sequelize";
@@ -10,6 +12,8 @@ const { ExpenseModel } = ExpenseSequelize;
 const { SupplierModel } = SupplierSequelize;
 const { TeamModel, TeamRoleModel } = TeamSequelize;
 const { TeamMemberModel } = TeamMemberSequelize;
+const { BudgetModel } = BudgetSequelize;
+const { InvoiceModel } = InvoiceSequelize;
 
 describe("ExpenseModel Integration Tests", () => {
   setupSequelize({
@@ -19,6 +23,8 @@ describe("ExpenseModel Integration Tests", () => {
       TeamModel,
       TeamRoleModel,
       TeamMemberModel,
+      BudgetModel,
+      InvoiceModel,
     ],
   });
 
@@ -37,6 +43,7 @@ describe("ExpenseModel Integration Tests", () => {
       "purchaseRequest",
       "purchaseOrder",
       "team_id",
+      "budget_id",
       "created_by",
       "created_at",
       "updated_by",
@@ -111,6 +118,13 @@ describe("ExpenseModel Integration Tests", () => {
       type: DataType.UUID(),
     });
 
+    expect(attributesMap.budget_id).toMatchObject({
+      field: "budget_id",
+      fieldName: "budget_id",
+      allowNull: false,
+      type: DataType.UUID(),
+    });
+
     expect(attributesMap.created_by).toMatchObject({
       field: "created_by",
       fieldName: "created_by",
@@ -140,7 +154,7 @@ describe("ExpenseModel Integration Tests", () => {
 
   test("create", async () => {
     let model;
-    createTeamModel();
+    await createDependencies();
     const arrange = {
       id: "312cffad-1938-489e-a706-643dc9a3cfd3",
       name: "new entity",
@@ -152,6 +166,7 @@ describe("ExpenseModel Integration Tests", () => {
       purchaseRequest: null,
       purchaseOrder: null,
       team_id: "2bcaaafd-6b55-4a60-98ee-f78b352ee7d8",
+      budget_id: "ae21f4b3-ecac-4ad9-9496-d2da487c4044",
       created_by: "system",
       created_at: new Date(),
       updated_by: "system",
@@ -167,10 +182,24 @@ describe("ExpenseModel Integration Tests", () => {
     expect(model.toJSON()).toStrictEqual(arrange);
   });
 
-  async function createTeamModel() {
+  async function createDependencies() {
     try {
       await TeamModel.create({
         id: "2bcaaafd-6b55-4a60-98ee-f78b352ee7d8",
+        name: "some name",
+        created_at: new Date(),
+        created_by: "system",
+        updated_at: new Date(),
+        updated_by: "system",
+      });
+    } catch (e) {
+      console.log(e);
+      throw e;
+    }
+
+    try {
+      await BudgetModel.create({
+        id: "ae21f4b3-ecac-4ad9-9496-d2da487c4044",
         name: "some name",
         created_at: new Date(),
         created_by: "system",

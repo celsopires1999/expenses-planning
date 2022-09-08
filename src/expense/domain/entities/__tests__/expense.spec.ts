@@ -1,12 +1,15 @@
-import { omit } from "lodash";
-import { validate as uuidValidate } from "uuid";
-import { AuditFields } from "#seedwork/domain/value-objects/audit-fields.vo";
-import { ExpenseType } from "#expense/domain/validators/expense.validator";
-import { UniqueEntityId } from "#seedwork/domain/value-objects/unique-entity-id.vo";
+import { BudgetId } from "#expense/domain/entities/budget-id.vo";
 import { Expense, ExpenseProps } from "#expense/domain/entities/expense";
-import { InvalidExpenseError } from "#expense/domain/errors/expense.error";
 import { SupplierId } from "#expense/domain/entities/supplier-id.vo";
 import { TeamId } from "#expense/domain/entities/team-id.vo";
+import { InvalidExpenseError } from "#expense/domain/errors/expense.error";
+import { ExpenseType } from "#expense/domain/validators/expense.validator";
+import { InvoiceStatus } from "#expense/domain/validators/invoice.validator";
+import { AuditFields } from "#seedwork/domain/value-objects/audit-fields.vo";
+import { UniqueEntityId } from "#seedwork/domain/value-objects/unique-entity-id.vo";
+import { omit } from "lodash";
+import { validate as uuidValidate } from "uuid";
+import { Invoice } from "../invoice";
 
 const testProps: ExpenseProps = {
   name: "initial name",
@@ -18,6 +21,17 @@ const testProps: ExpenseProps = {
   purchaseRequest: "1234567890",
   purchaseOrder: "0987654321",
   team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
+  budget_id: new BudgetId("ae21f4b3-ecac-4ad9-9496-d2da487c4044"),
+  invoices: [
+    new Invoice(
+      {
+        amount: 55.55,
+        date: new Date("2022-09-07"),
+        status: InvoiceStatus.PLAN,
+      },
+      { created_by: "system" }
+    ),
+  ],
 };
 
 describe("Expense Unit Test", () => {
@@ -49,6 +63,8 @@ describe("Expense Unit Test", () => {
     expect(entity.purchaseRequest).toBe(props.purchaseRequest);
     expect(entity.purchaseOrder).toBe(props.purchaseOrder);
     expect(entity.team_id).toStrictEqual(props.team_id);
+    expect(entity.budget_id).toStrictEqual(props.budget_id);
+    expect(entity.invoices).toStrictEqual(props.invoices);
     expect(entity.created_by).toBe(auditProps.created_by);
     expect(entity.created_at).toBe(auditProps.created_at);
     expect(entity.updated_by).toBe(auditProps.updated_by);
@@ -60,6 +76,7 @@ describe("Expense Unit Test", () => {
       "supplier_id",
       "purchaseRequest",
       "purchaseOrder",
+      "invoices",
     ]);
     const entity = new Expense(props, { created_by: "user" });
 
@@ -135,6 +152,31 @@ describe("Expense Unit Test", () => {
     expect(entity.team_id).toStrictEqual(team_id);
   });
 
+  test("getter and setter of budget_id prop", () => {
+    const budget_id = new BudgetId("47f3b2ad-8844-492a-a1a1-75a8c838daae");
+    const entity = new Expense(testProps, { created_by: "user" });
+    expect(entity.budget_id).toBe(testProps.budget_id);
+    entity["budget_id"] = budget_id;
+    expect(entity.budget_id).toStrictEqual(budget_id);
+  });
+
+  test("getter and setter of invoices prop", () => {
+    const invoices = [
+      new Invoice(
+        {
+          amount: 77.77,
+          date: new Date("2022-09-08"),
+          status: InvoiceStatus.PLAN,
+          document: "FAT4711",
+        },
+        { created_by: "system" }
+      ),
+    ];
+    const entity = new Expense(testProps, { created_by: "user" });
+    expect(entity.invoices).toBe(testProps.invoices);
+    entity["invoices"] = invoices;
+    expect(entity.invoices).toStrictEqual(invoices);
+  });
   test("getter and setter of auditFields prop", () => {
     const entity = new Expense(testProps, { created_by: "user" });
     expect(entity.created_at).toBeInstanceOf(Date);
@@ -194,9 +236,18 @@ describe("Expense Unit Test", () => {
         amount: 2500.55,
         type: ExpenseType.CAPEX,
         team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
+        budget_id: new BudgetId("ae21f4b3-ecac-4ad9-9496-d2da487c4044"),
       };
       const entity = new Expense(props, { created_by: "user1" });
-      expect(entity.toJSON()).toMatchObject(props);
+      expect(entity.toJSON()).toMatchObject({
+        name: "some name",
+        description: "some description",
+        year: 2022,
+        amount: 2500.55,
+        type: ExpenseType.CAPEX,
+        team_id: "47f3b2ad-8844-492a-a1a1-75a8c838daae",
+        budget_id: "ae21f4b3-ecac-4ad9-9496-d2da487c4044",
+      });
       expect(Expense.validate).toHaveBeenCalledTimes(1);
       expect(entity.updated_at).toEqual(entity.created_at);
 
@@ -249,6 +300,7 @@ describe("Expense Unit Test", () => {
       amount: 2500.55,
       type: ExpenseType.CAPEX,
       team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
+      budget_id: new BudgetId("ae21f4b3-ecac-4ad9-9496-d2da487c4044"),
     };
     const entity = new Expense(props, { created_by: "user" });
     expect(Expense.validate).toHaveBeenCalledTimes(1);
@@ -275,6 +327,7 @@ describe("Expense Unit Test", () => {
       type: ExpenseType.CAPEX,
       supplier_id: new SupplierId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
       team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
+      budget_id: new BudgetId("ae21f4b3-ecac-4ad9-9496-d2da487c4044"),
     };
     const entity = new Expense(props, { created_by: "user" });
     expect(Expense.validate).toHaveBeenCalledTimes(1);
@@ -304,6 +357,7 @@ describe("Expense Unit Test", () => {
       type: ExpenseType.CAPEX,
       supplier_id: new SupplierId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
       team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
+      budget_id: new BudgetId("ae21f4b3-ecac-4ad9-9496-d2da487c4044"),
     };
     const entity = new Expense(props, { created_by: "user" });
     entity.addPurchaseRequest("1234567890", "user1");
@@ -329,6 +383,7 @@ describe("Expense Unit Test", () => {
       supplier_id: new SupplierId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
       purchaseRequest: "1234567890",
       team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
+      budget_id: new BudgetId("ae21f4b3-ecac-4ad9-9496-d2da487c4044"),
     };
     const entity = new Expense(props, { created_by: "user" });
     entity.updatePurchaseRequest("0987654321", "user1");
@@ -349,6 +404,7 @@ describe("Expense Unit Test", () => {
       type: ExpenseType.CAPEX,
       supplier_id: new SupplierId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
       team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
+      budget_id: new BudgetId("ae21f4b3-ecac-4ad9-9496-d2da487c4044"),
     };
     const entity = new Expense(props, { created_by: "user" });
     entity.addPurchaseOrder("1234567890", "user1");
@@ -374,6 +430,7 @@ describe("Expense Unit Test", () => {
       supplier_id: new SupplierId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
       purchaseOrder: "1234567890",
       team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
+      budget_id: new BudgetId("ae21f4b3-ecac-4ad9-9496-d2da487c4044"),
     };
     const entity = new Expense(props, { created_by: "user" });
     entity.updatePurchaseOrder("0987654321", "user1");
@@ -394,6 +451,7 @@ describe("Expense Unit Test", () => {
       type: ExpenseType.CAPEX,
       supplier_id: new SupplierId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
       team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
+      budget_id: new BudgetId("ae21f4b3-ecac-4ad9-9496-d2da487c4044"),
     };
     const entity = new Expense(props, { created_by: "user" });
     entity.addPurchaseDocs("1234567890", "0987654321", "user1");
@@ -430,5 +488,33 @@ describe("Expense Unit Test", () => {
     ).toThrowError(
       new InvalidExpenseError(`Expense has Purchase Order already`)
     );
+  });
+
+  test("updateInvoices method", () => {
+    const props: ExpenseProps = {
+      name: "some name",
+      description: "some description",
+      year: 2022,
+      amount: 2500.55,
+      type: ExpenseType.CAPEX,
+      supplier_id: new SupplierId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
+      team_id: new TeamId("47f3b2ad-8844-492a-a1a1-75a8c838daae"),
+      budget_id: new BudgetId("ae21f4b3-ecac-4ad9-9496-d2da487c4044"),
+    };
+    const entity = new Expense(props, { created_by: "user" });
+    expect(entity.invoices).toBeNull();
+    entity.updateInvoices([], "system");
+    expect(entity.invoices).toBeNull();
+
+    const invoices = [
+      new Invoice(
+        { amount: 55.55, date: new Date(), status: InvoiceStatus.PLAN },
+        { created_by: "system" }
+      ),
+    ];
+    entity.updateInvoices(invoices, "user");
+    expect(entity.invoices).toStrictEqual(invoices);
+    entity.updateInvoices(null, "user");
+    expect(entity.invoices).toBeNull();
   });
 });

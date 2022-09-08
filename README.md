@@ -1,3 +1,3 @@
 # TODO:
 
-1 - next step is the ExpenseRepository
+1 - application layer
